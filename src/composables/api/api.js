@@ -1,4 +1,4 @@
-import { ref, watchEffect } from "vue";
+import { ref, watch, watchEffect } from "vue";
 import axios from "axios";
 import { useAuthStore } from "~/stores/auth";
 import { toast } from "vue3-toastify";
@@ -75,7 +75,8 @@ async function apiRequest(config) {
 }
 
 // Reusable API Query (GET Requests)
-export function useApiQuery(endpoint, enabled = true) {
+
+export function useApiQuery(endpoint, params = {}, enabled = true) {
   const data = ref(null);
   const error = ref(null);
   const loading = ref(false);
@@ -86,7 +87,7 @@ export function useApiQuery(endpoint, enabled = true) {
     error.value = null;
 
     try {
-      data.value = await apiRequest({ method: "GET", url: endpoint });
+      data.value = await apiRequest({ method: "GET", url: endpoint, params });
     } catch (err) {
       error.value = err;
     } finally {
@@ -95,6 +96,7 @@ export function useApiQuery(endpoint, enabled = true) {
   };
 
   watchEffect(fetchData); // Auto-fetch when component mounts
+  watch(() => params, fetchData, { deep: true }); // Refetch when params change
 
   return { data, error, loading, refetch: fetchData };
 }
