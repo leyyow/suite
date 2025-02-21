@@ -37,7 +37,7 @@ const isActive = (path) => computed(() => route.path.startsWith(path));
 const isSalesActive = computed(() => route.path.startsWith("/dashboard/sales"));
 
 const handleLogout = () => {
-  authStore.logout(); // Logs out and redirects to /auth/login
+  authStore.logout(); // Logs out and redirects to /auth/signin
 };
 </script>
 

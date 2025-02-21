@@ -24,7 +24,7 @@ export const useAuthStore = defineStore(
       accessToken.value = null;
       refreshToken.value = null;
       user.value = null;
-      router.push("/auth/login"); // Redirect to login page
+      router.push("/auth/signin"); // Redirect to login page
     };
 
     return { accessToken, refreshToken, user, isAuthenticated, setAuth, logout };
