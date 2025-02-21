@@ -48,13 +48,13 @@ const form = ref({ email: "", password: "", name: "", industry: "" });
         required
       />
 
-      <AppButton type="submit" label="Login" class="w-full" />
+      <AppButton type="submit" label="Sign Up" class="w-full" />
     </form>
 
     <div class="mt-5 pb-4">
       <p class="text-sm font-normal text-center text-gray-500">
         Already have an account?
-        <RouterLink to="/auth/signup" class="text-sm text-brand-500 font-medium underline">
+        <RouterLink to="/auth/signin" class="text-sm text-brand-500 font-medium underline">
           Login
         </RouterLink>
       </p>
