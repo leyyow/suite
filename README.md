@@ -15,8 +15,8 @@
 ## 📦 Installation
 
 ```sh
-git clone https://github.com/your-repo/leyyow-suite.git
-cd leyyow-suite
+git clone git@github.com:leyyow/suite.git
+cd suite
 npm install
 ```
 
