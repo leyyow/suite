@@ -3,27 +3,20 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import AppButton from "~/components/common/app-button.vue";
 import TextInput from "~/components/common/text-input.vue";
-import { useApi } from "~/composables/useApi";
+import { useLoginApi } from "~/composables/api/auth";
 import { useAuthStore } from "~/stores/auth";
 
 const router = useRouter();
-const { request, loading } = useApi();
 const authStore = useAuthStore();
+const { mutate: loginFn, loading } = useLoginApi();
 
 const form = ref({ email: "", password: "" });
-const error = ref(null);
 
-const onSubmit = async () => {
-  // router.push("/dashboard");
-  error.value = null;
-  try {
-    const data = await request("post", "/account/get_auth_token/", form.value);
-
+const onSubmit = () => {
+  loginFn(form.value).then((data) => {
     authStore.setAuth(data.access, data.refresh, data);
-    router.push("/dashboard/expenses"); // Redirect after login
-  } catch (err) {
-    error.value = "Invalid credentials";
-  }
+    router.push("/dashboard/expenses");
+  });
 };
 </script>
 
