@@ -1,0 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container {
+    left: unset !important;
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+    width: var(--toastify-toast-width) !important;
+  }
+}
