@@ -5,6 +5,7 @@ import { useRoute } from "vue-router";
 import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
 import DropdownMenu from "~/components/common/dropdown-menu.vue";
+import { useAuthStore } from "~/stores/auth";
 
 // Sidebar links with icon and title
 const links = computed(() => [
@@ -30,8 +31,14 @@ const fabMenuItems = [
 ];
 
 const route = useRoute();
+const authStore = useAuthStore();
+
 const isActive = (path) => computed(() => route.path.startsWith(path));
 const isSalesActive = computed(() => route.path.startsWith("/dashboard/sales"));
+
+const handleLogout = () => {
+  authStore.logout(); // Logs out and redirects to /auth/login
+};
 </script>
 
 <template>
@@ -40,10 +47,11 @@ const isSalesActive = computed(() => route.path.startsWith("/dashboard/sales"));
     <header class="bg-brand-100 sticky top-0">
       <div class="flex items-center justify-between px-4 py-2">
         <img src="/leyyow.png" class="h-8" alt="Flowbite Logo" />
-        <AppButton icon="mdi:menu" variant="tonal" />
+        <AppButton icon="mdi:logout" variant="outlined" class="!text-error" @click="handleLogout" />
       </div>
       <div class="flex w-full border-y border-brand-200">
-        <RouterLink
+        <component
+          :is="link.title === 'Expenses' ? 'RouterLink' : 'span'"
           v-for="link in headerLinks"
           :key="link.title"
           :to="link.to"
@@ -55,12 +63,12 @@ const isSalesActive = computed(() => route.path.startsWith("/dashboard/sales"));
           ]"
         >
           {{ link.title }}
-        </RouterLink>
+        </component>
       </div>
     </header>
 
     <!-- Main content area -->
-    <main class="flex-1 px-2.5 py-4 sm:p-6 overflow-auto pb-16">
+    <main class="flex-1 px-2.5 py-4 sm:p-4 overflow-auto">
       <router-view />
     </main>
 

@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 
 export const useAuthStore = defineStore(
   "auth",
@@ -7,6 +8,7 @@ export const useAuthStore = defineStore(
     const accessToken = ref(null);
     const refreshToken = ref(null);
     const user = ref(null);
+    const router = useRouter();
 
     const isAuthenticated = computed(() => !!accessToken.value);
 
@@ -17,11 +19,12 @@ export const useAuthStore = defineStore(
       user.value = userInfo;
     };
 
-    // Logout user
+    // Logout user and redirect to login page
     const logout = () => {
       accessToken.value = null;
       refreshToken.value = null;
       user.value = null;
+      router.push("/auth/login"); // Redirect to login page
     };
 
     return { accessToken, refreshToken, user, isAuthenticated, setAuth, logout };
