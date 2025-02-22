@@ -45,7 +45,7 @@ const pricings = [
         <p class="text-lg md:text-xl text-brand-200 my-6">
           Turning your hustle to business. How bad do you want it?
         </p>
-        <AppButton variant="outlined" class="w-full md:w-60">
+        <AppButton variant="outlined" class="w-full md:w-60" @click="router.push('/auth/signup')">
           Get Started
           <Icon icon="mdi:arrow-right" />
         </AppButton>
@@ -70,7 +70,7 @@ const pricings = [
         <h3 class="text-4xl md:text-6xl font-medium mb-6">
           Then <span class="text-brand-500 font-bold">Leyyow</span> was made for you 🫵!
         </h3>
-        <AppButton class="w-full md:w-60">
+        <AppButton class="w-full md:w-60" @click="router.push('/auth/signup')">
           Explore Now
           <Icon icon="mdi:arrow-right" />
         </AppButton>

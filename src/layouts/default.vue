@@ -2,7 +2,9 @@
 import { ref } from "vue";
 import { Icon } from "@iconify/vue";
 import AppButton from "~/components/common/app-button.vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const isMobileMenuOpen = ref(false);
 
 const toggleMobileMenu = () => {
@@ -80,7 +82,7 @@ const socialLinks = [
   <footer class="bg-brand-600 text-brand-200 px-4 pt-16 pb-10 text-center">
     <h2 class="text-4xl sm:text-5xl font-semibold mb-4">Expand your business horizons with us.</h2>
     <p class="mb-4">Get started in 5 minutes</p>
-    <AppButton>
+    <AppButton @click="router.push('/auth/signup')">
       Get Started Now
       <Icon icon="mdi-arrow-right" />
     </AppButton>
