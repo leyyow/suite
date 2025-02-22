@@ -53,7 +53,7 @@ const pricings = [
     </div>
   </section>
 
-  <section class="my-16 max-w-screen-lg mx-auto px-4">
+  <section id="why-leyyow" class="my-16 max-w-screen-lg mx-auto px-4">
     <h3 class="font-medium text-4xl md:text-6xl mb-8 text-center md:text-left">
       If this is <span class="text-brand-500">you.</span> 😟
     </h3>
@@ -79,7 +79,7 @@ const pricings = [
     </div>
   </section>
 
-  <section class="my-16 max-w-screen-lg mx-auto px-4">
+  <section id="features" class="my-16 max-w-screen-lg mx-auto px-4">
     <h3 class="text-4xl md:text-5xl font-medium w-full md:w-3/5 mb-8 text-center md:text-left">
       Enhance your sales game with all the essentials.
     </h3>
@@ -150,7 +150,7 @@ const pricings = [
     </div>
   </section>
 
-  <section class="my-16 max-w-screen-lg mx-auto px-4">
+  <section id="pricing" class="my-16 max-w-screen-lg mx-auto px-4">
     <h3 class="text-4xl md:text-5xl font-medium w-full md:w-3/5 mb-8 text-center md:text-left">
       Choose the best plan for your <span class="text-brand-500">business.</span>
     </h3>

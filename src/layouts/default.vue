@@ -10,13 +10,13 @@ const toggleMobileMenu = () => {
 };
 
 const headerLinks = [
-  { name: "Why Leyyow", to: "/why" },
-  { name: "Features", to: "/features" },
-  { name: "Pricing", to: "/pricing" },
+  { name: "Why Leyyow", to: "#why-leyyow" },
+  { name: "Features", to: "#features" },
+  { name: "Pricing", to: "#pricing" },
 ];
 
 const socialLinks = [
-  { name: "Instagram", to: "/#" },
+  { name: "Instagram", to: "https://instagram.com/_u/leyyow_app/" },
   { name: "Twitter", to: "/#" },
   { name: "LinkedIn", to: "/#" },
   { name: "Facebook", to: "/#" },
@@ -34,9 +34,9 @@ const socialLinks = [
       <div class="hidden md:flex items-center space-x-6">
         <ul class="flex space-x-5 text-sm">
           <li v-for="link in headerLinks" :key="link.name">
-            <RouterLink :to="link.to" class="text-brand-500 hover:underline">
+            <a :href="link.to" class="text-brand-500 hover:underline">
               {{ link.name }}
-            </RouterLink>
+            </a>
           </li>
         </ul>
       </div>
@@ -94,8 +94,12 @@ const socialLinks = [
           <RouterLink to="/" class="underline text-brand-200">Leyyow</RouterLink>
         </span>
         <div>
-          <RouterLink to="/privacy" class="text-brand-300 hover:underline"
-            >Privacy Policy</RouterLink
+          <a
+            href="https://leyyow.notion.site/Refund-policy-162f3934f3148085a337fc0d3cbffb99?pvs=4"
+            class="text-brand-300 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Privacy Policy</a
           >
           <a href="mailto:hello@leyyow.com" class="text-brand-300 underline ml-4"
             >hello@leyyow.com</a

@@ -59,7 +59,24 @@ const form = ref({ email: "", password: "", name: "", industry: "" });
         </RouterLink>
       </p>
       <p class="mt-2 text-brand-400 text-sm text-center">
-        By signing up, I agree to the <u>Leyyow Privacy Policy</u> and <u>Terms of Services</u>
+        By signing up, I agree to the Leyyow
+        <a
+          href="https://leyyow.notion.site/Refund-policy-162f3934f3148085a337fc0d3cbffb99?pvs=4"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline"
+        >
+          Privacy Policy
+        </a>
+        and
+        <a
+          href="https://leyyow.notion.site/Refund-policy-162f3934f3148085a337fc0d3cbffb99?pvs=4"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline"
+        >
+          Terms of Services
+        </a>
       </p>
     </div>
   </div>

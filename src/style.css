@@ -6,6 +6,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding: 88px;
 }
 
 @media only screen and (max-width: 480px) {
