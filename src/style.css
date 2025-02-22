@@ -9,11 +9,18 @@ html {
   scroll-padding: 88px;
 }
 
-@media only screen and (max-width: 480px) {
-  .Toastify__toast-container {
-    left: unset !important;
-    top: 0.5rem !important;
-    right: 0.5rem !important;
-    width: var(--toastify-toast-width) !important;
-  }
+.Toastify__toast-container {
+  left: unset !important;
+  top: 0.5rem !important;
+  right: 0.5rem !important;
+  width: var(--toastify-toast-width) !important;
+}
+.Toastify__toast-body {
+  padding: 3px !important;
+  font-size: 14px !important;
+}
+.Toastify__toast {
+  border-radius: 8px !important;
+  padding: 4px !important;
+  margin-bottom: 0 !important;
 }
