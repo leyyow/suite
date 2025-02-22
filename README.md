@@ -23,19 +23,30 @@ npm install
 ## 🔧 Scripts
 
 ### Run the development server:
+
 ```sh
 npm run dev
 ```
+
 ### Build for production:
+
 ```sh
 npm run build
 ```
+
 ### Preview production build:
+
 ```sh
 npm run preview
 ```
+
 ### Lint and format code:
+
 ```sh
 npm run lint
 npm run format
 ```
+
+## 🌐 Demo / Preview
+
+- Live: [https://suite.leyyow.com/](https://suite.leyyow.com/)
