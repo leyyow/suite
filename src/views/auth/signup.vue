@@ -1,9 +1,40 @@
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
+import SelectInput from "~/components/common/select-input.vue";
 import TextInput from "~/components/common/text-input.vue";
+import { useRegisterApi } from "~/composables/api/auth";
+import { useAuthStore } from "~/stores/auth";
 
-const form = ref({ email: "", password: "", name: "", industry: "" });
+const form = ref({
+  email: "",
+  password: "",
+  store_name: "",
+  business_type: { label: "", value: "" },
+});
+
+const industryOptions = [
+  { label: "Fashion & Accessories", value: "1" },
+  { label: "Health & Beauty", value: "2" },
+  { label: "Gadgets & Electronics", value: "3" },
+  { label: "Events", value: "4" },
+  { label: "Food", value: "6" },
+  { label: "Others", value: "5" },
+];
+
+const { mutate: signupFn, loading } = useRegisterApi();
+const authStore = useAuthStore();
+const router = useRouter();
+
+const onSubmit = () => {
+  signupFn({ ...form.value, business_type: form.value.business_type.value }).then((data) => {
+    authStore.setAuth(data.access, data.refresh, data);
+    toast.success("Registration successful");
+    router.push("/dashboard/expenses");
+  });
+};
 </script>
 
 <template>
@@ -19,15 +50,16 @@ const form = ref({ email: "", password: "", name: "", industry: "" });
 
     <form class="flex flex-col gap-2" @submit.prevent="onSubmit">
       <TextInput
-        v-model="form.name"
+        v-model="form.store_name"
         label="Store Name"
         placeholder="e.g. solesnshades, smileng"
         required
       />
 
-      <TextInput
-        v-model="form.industry"
+      <SelectInput
+        v-model="form.business_type"
         label="Industry"
+        :options="industryOptions"
         placeholder="e.g. Gadgets, food, skincare, etc"
         required
       />
@@ -48,7 +80,7 @@ const form = ref({ email: "", password: "", name: "", industry: "" });
         required
       />
 
-      <AppButton type="submit" label="Sign Up" class="w-full" />
+      <AppButton type="submit" :loading="loading" label="Sign Up" class="w-full" />
     </form>
 
     <div class="mt-5 pb-4">

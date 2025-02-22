@@ -8,6 +8,14 @@ export function useLoginApi() {
   }));
 }
 
+export function useRegisterApi() {
+  return useApiMutation((data) => ({
+    url: "/account/signup/",
+    method: "POST",
+    body: data,
+  }));
+}
+
 export function useLogoutApi() {
   return useApiMutation(() => ({
     url: "/account/logout",
