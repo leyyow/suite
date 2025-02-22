@@ -61,7 +61,11 @@ async function refreshToken(authStore) {
 // Handle API errors globally
 function handleApiError(error) {
   console.error("API Error:", error);
-  toast.error(error.response?.data?.message || "Oops! Something went wrong!");
+  const message =
+    error.code === "ERR_NETWORK"
+      ? "Network Error: Unable to reach the server"
+      : error.response?.data?.message || "Oops! Something went wrong!";
+  toast.error(message);
 }
 
 // General API request function

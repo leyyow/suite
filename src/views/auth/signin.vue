@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
 import TextInput from "~/components/common/text-input.vue";
 import { useLoginApi } from "~/composables/api/auth";
@@ -15,6 +16,7 @@ const form = ref({ email: "", password: "" });
 const onSubmit = () => {
   loginFn(form.value).then((data) => {
     authStore.setAuth(data.access, data.refresh, data);
+    toast.success("Login successful");
     router.push("/dashboard/expenses");
   });
 };
