@@ -1,7 +1,15 @@
 import { useApiMutation, useApiQuery } from "./api";
 
-export function useGetExpenses() {
-  return useApiQuery(`/expenses/`);
+export function useGetExpenses(params) {
+  return useApiQuery(`/expenses/`, params);
+}
+
+export function useGetExpenseSummary(params) {
+  return useApiQuery(`/expenses/period-summary/`, params);
+}
+
+export function useGetSingleExpense(id) {
+  return useApiQuery(`/expenses/${id}`);
 }
 
 export function useCreateExpense() {
@@ -25,4 +33,16 @@ export function useGetExpenseCategories() {
 
 export function useGetExpenseSubCategoris() {
   return useApiQuery("/expenses/subcategories/");
+}
+
+export function useGetExpenseRecipients() {
+  return useApiQuery("/expenses/recipients/");
+}
+
+export function useCreateRecipient() {
+  return useApiMutation((data) => ({
+    url: "/expenses/recipients/",
+    method: "POST",
+    body: data,
+  }));
 }
