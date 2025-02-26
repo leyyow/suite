@@ -68,7 +68,7 @@ const closeModal = () => {
 
             <!-- Modal Content -->
             <div
-              class="max-h-[calc(100vh-64px)] overflow-auto rounded-t-2xl md:rounded-b-2xl bg-brand-100"
+              class="max-h-[calc(100vh-120px)] overflow-auto rounded-t-2xl md:rounded-b-2xl bg-brand-100"
               :class="{ 'rounded-b-2xl': centered }"
             >
               <!-- Modal Header -->

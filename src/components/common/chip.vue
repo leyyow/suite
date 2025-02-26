@@ -5,6 +5,7 @@ const props = defineProps({
   label: { type: String },
   class: { type: String || Array, default: "" },
   variant: { type: String },
+  dense: Boolean,
 });
 const emit = defineEmits(["click"]);
 
@@ -17,14 +18,19 @@ const variantClass = computed(() => {
     case "error":
       return "bg-error/10 text-error";
     default:
-      return "bg-gray-500/10 text-gray-600";
+      return "bg-brand-50 text-brand-400 border border-brand-200";
   }
 });
 </script>
 
 <template>
   <span
-    :class="[variantClass, 'rounded-full px-3 py-2 text-sm', props.class]"
+    :class="[
+      variantClass,
+      'rounded-full capitalize',
+      dense ? 'px-2.5 py-1 text-xs' : 'px-3 py-2 text-sm',
+      props.class,
+    ]"
     @click="emit('click')"
   >
     <slot>{{ label }}</slot>

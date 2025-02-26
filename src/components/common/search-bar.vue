@@ -36,7 +36,7 @@ const hasText = computed(() => props.modelValue?.length);
       :placeholder="placeholder"
       :value="modelValue"
       :class="[
-        'h-11 w-full rounded-lg border border-brand-200 bg-transparent pl-10 pr-10 py-2.5',
+        'h-11 w-full rounded-lg border border-brand-200 bg-brand-50 pl-10 pr-10 py-2.5',
         'text-sm placeholder:text-brand-300 focus:border-brand-500 focus:outline-none focus:ring focus:ring-brand-500/10',
       ]"
       @input="emit('update:modelValue', $event.target.value)"
