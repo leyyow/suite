@@ -66,7 +66,7 @@ onUnmounted(() => {
         v-if="isOpen"
         :class="[
           'absolute right-0 mt-2 z-[100] origin-top-right py-2 px-2 bg-white shadow-lg',
-          'ring-1 ring-black/5 focus:outline-none w-auto min-w-40 rounded-md divide-y divide-brand-100',
+          'ring-1 ring-black/5 focus:outline-none w-max min-w-40 rounded-md divide-y divide-brand-100',
           menuClass,
         ]"
       >
