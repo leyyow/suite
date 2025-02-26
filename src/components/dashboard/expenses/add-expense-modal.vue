@@ -144,7 +144,6 @@ const onAddRecipient = () => {
 const allRecipients = computed(() => {
   return recipients.value?.map((x) => ({ label: x.name, value: x.id })) || [];
 });
-watch(allRecipients, (v) => console.log("REC", v));
 
 onMounted(async () => {
   try {
