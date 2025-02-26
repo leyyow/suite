@@ -13,8 +13,13 @@ import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.v
 import DeleteExpenseModal from "~/components/dashboard/expenses/delete-expense-modal.vue";
 import FilterExpenseModal from "~/components/dashboard/expenses/filter-expense-modal.vue";
 import SortExpenseModal from "~/components/dashboard/expenses/sort-expense-modal.vue";
-import { useGetExpenses, useGetExpenseSummary } from "~/composables/api/expense";
-import { useApi } from "~/composables/useApi";
+import {
+  useCreateExpense,
+  useDeleteExpense,
+  useGetExpenses,
+  useGetExpenseSummary,
+  useUpdateExpense,
+} from "~/composables/api/expense";
 import { formatNaira } from "~/utilities/formatNaira";
 
 const now = new Date();
@@ -83,7 +88,6 @@ const menuItems = computed(() => [
   },
 ]);
 
-const { request } = useApi();
 const expenses = ref({ count: 0, results: [] });
 const activeItem = ref({});
 const searchValue = ref("");
@@ -112,9 +116,10 @@ const period = computed(() => {
 });
 const { data: expSummary } = useGetExpenseSummary(period);
 
+const { mutate: createExpense, loading: loadingAdd } = useCreateExpense();
 const addExpense = async (payload) => {
   try {
-    await request("post", "/expenses/", payload);
+    await createExpense(payload);
     toast.success("Expenses added successfully");
     showModal.value = false;
     fetchExpenses();
@@ -123,9 +128,10 @@ const addExpense = async (payload) => {
   }
 };
 
+const { mutate: updateExpense, loading: loadingEdit } = useUpdateExpense();
 const editExpense = async (payload) => {
   try {
-    await request("put", `/expenses/${activeItem.value?.id}/`, payload);
+    await updateExpense({ id: activeItem.value?.id, payload });
     toast.success("Expenses UPDATED successfully");
     showModal.value = false;
     fetchExpenses();
@@ -139,9 +145,10 @@ const handleSubmit = (v) => {
   else addExpense(v);
 };
 
+const { mutate: deleteExpense, loading: loadingDelete } = useDeleteExpense();
 const handleDelete = async () => {
   try {
-    await request("delete", `/expenses/${activeItem.value.id}/`);
+    await deleteExpense(activeItem.value.id);
     toast.success("Expenses DELETED successfully");
     showDeleteModal.value = false;
     fetchExpenses();
@@ -326,12 +333,12 @@ const onClearFilters = () => {
     <!--  -->
     <AddExpenseModal
       v-model="showModal"
-      :loading="loading"
+      :loading="loadingAdd || loadingEdit"
       :item="activeItem"
       :edit="isEditing"
       @submit="handleSubmit"
     />
-    <DeleteExpenseModal v-model="showDeleteModal" :loading="loading" @delete="handleDelete" />
+    <DeleteExpenseModal v-model="showDeleteModal" :loading="loadingDelete" @delete="handleDelete" />
     <FilterExpenseModal v-model="showFilterModal" :loading="loading" @submit="filterExpenses" />
     <SortExpenseModal v-model="showSortModal" :loading="loading" @submit="sortExpenses" />
   </div>

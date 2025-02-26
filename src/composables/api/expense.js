@@ -20,6 +20,14 @@ export function useCreateExpense() {
   }));
 }
 
+export function useUpdateExpense() {
+  return useApiMutation(({ id, payload }) => ({
+    url: `/expenses/${id}/`,
+    method: "PUT",
+    body: payload,
+  }));
+}
+
 export function useDeleteExpense() {
   return useApiMutation((id) => ({
     url: `/expenses/${id}/`,

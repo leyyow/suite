@@ -8,11 +8,9 @@ import Chip from "~/components/common/chip.vue";
 import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.vue";
 import AddReceiptModal from "~/components/dashboard/expenses/add-receipt-modal.vue";
 import DeleteExpenseModal from "~/components/dashboard/expenses/delete-expense-modal.vue";
-import { useGetSingleExpense } from "~/composables/api/expense";
-import { useApi } from "~/composables/useApi";
+import { useDeleteExpense, useGetSingleExpense, useUpdateExpense } from "~/composables/api/expense";
 import { formatNaira } from "~/utilities/formatNaira";
 
-const { request } = useApi();
 const route = useRoute();
 const router = useRouter();
 
@@ -22,9 +20,10 @@ const showDeleteModal = ref(false);
 
 const { data: expense, loading, refetch: fetchExpense } = useGetSingleExpense(route.params.id);
 
+const { mutate: updateExpense, loading: loadingEdit } = useUpdateExpense();
 const editExpense = async (payload) => {
   try {
-    await request("put", `/expenses/${expense.value?.id}/`, payload);
+    await updateExpense({ id: expense.value?.id, payload });
     toast.success("Expenses UPDATED successfully");
     showEditModal.value = false;
     fetchExpense();
@@ -33,9 +32,10 @@ const editExpense = async (payload) => {
   }
 };
 
+const { mutate: deleteExpense, loading: loadingDelete } = useDeleteExpense();
 const handleDelete = async () => {
   try {
-    await request("delete", `/expenses/${expense.value?.id}/`);
+    await deleteExpense(expense.value?.id);
     toast.success("Expenses DELETED successfully");
     showDeleteModal.value = false;
     router.push("/dashboard/expenses");
@@ -150,11 +150,11 @@ const onClickReceipt = () => {
     </div>
 
     <!--  -->
-    <DeleteExpenseModal v-model="showDeleteModal" :loading="loading" @delete="handleDelete" />
+    <DeleteExpenseModal v-model="showDeleteModal" :loading="loadingDelete" @delete="handleDelete" />
 
     <AddExpenseModal
       v-model="showEditModal"
-      :loading="loading"
+      :loading="loadingEdit"
       :item="expense"
       :edit="true"
       @submit="editExpense"
