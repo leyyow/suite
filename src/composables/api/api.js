@@ -72,7 +72,7 @@ function handleApiError(error) {
 async function apiRequest(config) {
   try {
     const response = await api(config);
-    return response.data.data;
+    return response.data.data || response.data;
   } catch (error) {
     throw error.response?.data || error.message || "An error occurred";
   }
