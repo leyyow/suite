@@ -72,14 +72,13 @@ function handleApiError(error) {
 async function apiRequest(config) {
   try {
     const response = await api(config);
-    return response.data;
+    return response.data.data;
   } catch (error) {
     throw error.response?.data || error.message || "An error occurred";
   }
 }
 
 // Reusable API Query (GET Requests)
-
 export function useApiQuery(endpoint, params = {}, enabled = true) {
   const data = ref(null);
   const error = ref(null);
@@ -91,7 +90,11 @@ export function useApiQuery(endpoint, params = {}, enabled = true) {
     error.value = null;
 
     try {
-      data.value = await apiRequest({ method: "GET", url: endpoint, params });
+      data.value = await apiRequest({
+        method: "GET",
+        url: endpoint,
+        params: params.value || params,
+      });
     } catch (err) {
       error.value = err;
     } finally {
@@ -113,13 +116,12 @@ export function useApiMutation(endpointFn) {
   const mutate = async (data) => {
     loading.value = true;
     error.value = null;
-
     try {
       const { url, method, body } = endpointFn(data);
       return await apiRequest({ method, url, data: body });
     } catch (err) {
       error.value = err;
-      return null;
+      throw err;
     } finally {
       loading.value = false;
     }

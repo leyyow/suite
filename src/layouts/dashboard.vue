@@ -1,10 +1,12 @@
 <script setup>
 import { Icon } from "@iconify/vue";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
 import DropdownMenu from "~/components/common/dropdown-menu.vue";
+import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.vue";
+import { useCreateExpense, useGetExpenses } from "~/composables/api/expense";
 import { useAuthStore } from "~/stores/auth";
 
 // Sidebar links with icon and title
@@ -27,7 +29,11 @@ const fabMenuItems = [
   { label: "Product", icon: "fluent:clipboard-note-16-regular", action },
   { label: "Customer", icon: "fluent:person-28-filled", action },
   { label: "Sale", icon: "icon-park-solid:shopping-bag", action },
-  { label: "Expense", icon: "fluent:reciept-24-filled", action },
+  {
+    label: "Expense",
+    icon: "fluent:reciept-24-filled",
+    action: () => (showExpenseModal.value = true),
+  },
 ];
 
 const route = useRoute();
@@ -39,15 +45,31 @@ const isSalesActive = computed(() => route.path.startsWith("/dashboard/sales"));
 const handleLogout = () => {
   authStore.logout(); // Logs out and redirects to /auth/signin
 };
+
+const showExpenseModal = ref(false);
+const { refetch } = useGetExpenses();
+const { mutate: createExpense, loading: loadingExpense } = useCreateExpense();
+const onAddExpense = (payload) => {
+  createExpense(payload).then(() => {
+    toast.success("Expenses added successfully");
+    showExpenseModal.value = false;
+    refetch();
+  });
+};
 </script>
 
 <template>
   <div class="h-screen flex flex-col bg-brand-100">
     <!-- Header (App Bar) -->
-    <header class="bg-brand-100 sticky top-0">
+    <header class="bg-brand-50 sticky top-0">
       <div class="flex items-center justify-between px-4 py-2">
         <img src="/leyyow.png" class="h-8" alt="Flowbite Logo" />
-        <AppButton icon="mdi:logout" variant="outlined" class="!text-error" @click="handleLogout" />
+        <AppButton
+          icon="mdi:logout"
+          variant="outlined"
+          icon-class="!text-error"
+          @click="handleLogout"
+        />
       </div>
       <div class="flex w-full border-y border-brand-200">
         <component
@@ -99,7 +121,7 @@ const handleLogout = () => {
         <!--  FAB -->
         <DropdownMenu :items="fabMenuItems" menu-class="bottom-full -right-10">
           <template #label>
-            <AppButton icon="mdi:plus" />
+            <AppButton icon="uim:plus-square" />
           </template>
         </DropdownMenu>
         <!--  -->
@@ -123,5 +145,8 @@ const handleLogout = () => {
         </template>
       </div>
     </nav>
+
+    <!--  -->
+    <AddExpenseModal v-model="showExpenseModal" :loading="loadingExpense" @submit="onAddExpense" />
   </div>
 </template>

@@ -8,6 +8,7 @@ import Modal from "~/components/common/modal.vue";
 import SelectInput from "~/components/common/select-input.vue";
 import TextArea from "~/components/common/text-area.vue";
 import TextInput from "~/components/common/text-input.vue";
+import { useCreateRecipient, useGetExpenseRecipients } from "~/composables/api/expense";
 import { useApi } from "~/composables/useApi";
 
 const props = defineProps({
@@ -26,11 +27,18 @@ const form = ref({
   parentCategory: { label: "", value: "" },
   name: "",
   amount: "",
-  recipient: "",
-  date: "",
+  recipient: { label: "", value: "" },
+  date: new Date().toISOString().split("T")[0],
   channel: { label: "", value: "" },
   description: "",
 });
+const newRecipient = ref("");
+const showAddRpt = ref(false);
+
+const closeNewRpt = () => {
+  newRecipient.value = "";
+  showAddRpt.value = false;
+};
 
 const categories = ref([]);
 const subCategories = ref([]);
@@ -60,7 +68,7 @@ watch(
             category: { label: sub.name, value: sub.id },
             name: item.value.name,
             amount: item.value.amount,
-            recipient: item.value.recipient,
+            recipient: { label: item.value.recipient_name, value: item.value.recipient },
             date: item.value.date.slice(0, 10),
             channel: { label: capitalize(item.value.channel), value: item.value.channel },
             description: item.value.description || "",
@@ -73,8 +81,8 @@ watch(
         parentCategory: { label: "", value: "" },
         name: "",
         amount: "",
-        recipient: "",
-        date: "",
+        recipient: { label: "", value: "" },
+        date: new Date().toISOString().split("T")[0],
         channel: { label: "", value: "" },
         description: "",
       };
@@ -103,6 +111,7 @@ const onSubmit = (e) => {
     ...form.value,
     category: form.value.category?.value,
     channel: form.value.channel?.value,
+    recipient: form.value.recipient?.value,
   };
   delete payload.parentCategory;
 
@@ -121,6 +130,21 @@ const onSubmit = (e) => {
     emit("update:modelValue", false);
   }
 };
+
+const { data: recipients, refetch } = useGetExpenseRecipients();
+const { mutate: createRecipient, loading: loadingRpt } = useCreateRecipient();
+const onAddRecipient = () => {
+  if (!newRecipient.value) return toast.error("Recipient Name is required");
+  createRecipient({ name: newRecipient.value }).then(() => {
+    toast.success("Recipient Added");
+    refetch();
+    closeNewRpt();
+  });
+};
+const allRecipients = computed(() => {
+  return recipients.value?.map((x) => ({ label: x.name, value: x.id })) || [];
+});
+watch(allRecipients, (v) => console.log("REC", v));
 
 onMounted(async () => {
   try {
@@ -156,15 +180,29 @@ onMounted(async () => {
       />
 
       <div>
-        <TextInput
+        <SelectInput
           v-model="form.recipient"
           label="To (Recipient)"
-          placeholder="e.g. Debola"
+          placeholder="Select ..."
           required
+          :options="allRecipients"
         />
-        <!-- <button type="button" class="text-brand-500 font-medium underline text-sm mt-2">
+        <button
+          v-if="!showAddRpt"
+          type="button"
+          class="text-brand-500 font-medium underline text-sm mt-2"
+          @click="showAddRpt = true"
+        >
           Add New
-        </button> -->
+        </button>
+        <div v-else class="bg-white py-2 px-3 rounded-lg mt-1">
+          <h5 class="text-sm mb-2">New Recipient</h5>
+          <TextInput v-model="newRecipient" dense label="Name" placeholder="e.g. Debola" required />
+          <div class="flex justify-end gap-2 mt-1">
+            <AppButton variant="outlined" small label="Cancel" @click="closeNewRpt" />
+            <AppButton label="Add Recipient" small :loading="loadingRpt" @click="onAddRecipient" />
+          </div>
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-2">
@@ -199,7 +237,7 @@ onMounted(async () => {
 
       <AppButton
         type="submit"
-        :label="edit ? 'Edit Expense ' : 'Add Expense'"
+        :label="edit ? 'Save Changes' : 'Add Expense'"
         :loading="loading"
         class="w-full"
       />

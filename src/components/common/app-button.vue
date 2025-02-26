@@ -10,9 +10,11 @@ const props = defineProps({
     validator: (v) => ["button", "submit", "reset"].includes(v),
   },
   small: { type: Boolean, default: false }, // small size button
+  smaller: { type: Boolean, default: false }, // small size button
   disabled: { type: Boolean, default: false },
   loading: { type: Boolean, default: false }, // New loading state
   class: { type: String || Array, default: "" },
+  iconClass: { type: String || Array, default: "" },
   variant: {
     type: String,
     default: "filled",
@@ -40,9 +42,16 @@ const emitClick = (event) => {
         'border border-brand-200 text-brand-500 bg-brand-50 focus:ring-brand-500/50',
       variant === 'tonal' &&
         'border border-brand-200 text-brand-500 bg-brand-500/20 focus:ring-brand-500/50',
-      icon && !label ? 'h-9 w-9' : small ? 'h-10 text-sm px-4' : 'h-12 text-sm px-6',
+      icon && !label
+        ? 'h-9 w-9'
+        : smaller
+          ? 'h-8 text-sm px-4'
+          : small
+            ? 'h-10 text-sm px-4'
+            : 'h-12 text-sm px-6',
       disabled || loading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
       props.class,
+      props.iconClass,
     ]"
     :disabled="disabled || loading"
     :type="type"
@@ -51,8 +60,11 @@ const emitClick = (event) => {
     <Icon
       v-if="loading || (icon && !label)"
       :icon="loading ? 'eos-icons:bubble-loading' : icon"
-      class="h-5 w-5"
-      :class="['outlined', 'tonal'].includes(variant) ? 'text-brand-500' : 'text-white'"
+      :class="[
+        'h-5 w-5',
+        ['outlined', 'tonal'].includes(variant) ? 'text-brand-500' : 'text-white',
+        props.iconClass,
+      ]"
     />
     <slot v-else>{{ label }}</slot>
   </button>
