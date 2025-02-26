@@ -78,7 +78,7 @@ onUnmounted(() => {
             'text-brand-400 hover:text-brand-500 hover:bg-brand-100',
             item.class,
           ]"
-          @click="
+          @click.stop="
             () => {
               item.action();
               isOpen = false;
