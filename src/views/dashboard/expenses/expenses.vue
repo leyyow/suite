@@ -1,9 +1,10 @@
 <script setup>
 import { Icon } from "@iconify/vue";
-import { onMounted, watch, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
+import Chip from "~/components/common/chip.vue";
 import DropdownMenu from "~/components/common/dropdown-menu.vue";
 import SearchBar from "~/components/common/search-bar.vue";
 import SelectInput from "~/components/common/select-input.vue";
@@ -12,6 +13,7 @@ import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.v
 import DeleteExpenseModal from "~/components/dashboard/expenses/delete-expense-modal.vue";
 import FilterExpenseModal from "~/components/dashboard/expenses/filter-expense-modal.vue";
 import SortExpenseModal from "~/components/dashboard/expenses/sort-expense-modal.vue";
+import { useGetExpenses, useGetExpenseSummary } from "~/composables/api/expense";
 import { useApi } from "~/composables/useApi";
 import { formatNaira } from "~/utilities/formatNaira";
 
@@ -25,8 +27,8 @@ const thisYearEnd = new Date(now.getFullYear(), 11, 31).toISOString().split("T")
 const summaryPeriodOptions = computed(() => [
   { label: "Today", value: "today" },
   { label: "Yesterday", value: "yesterday" },
-  { label: "This Month", value: `range&start_date=${thisMonthStart}&end_date=${thisMonthEnd}` },
-  { label: "This Year", value: `range&start_date=${thisYearStart}&end_date=${thisYearEnd}` },
+  { label: "This Month", value: "this_month" },
+  { label: "This Year", value: "this_year" },
 ]);
 
 // Default range set to "This Month"
@@ -44,9 +46,9 @@ const filteredParams = ref("");
 const COLORS = ["bg-blue-600", "bg-cyan-500", "bg-violet-500", "bg-fuchsia-500", "bg-brand-300"];
 
 const categories = computed(() => {
-  if (!expenseSummary.value?.summary?.top_5_categories) return [];
+  if (!expSummary.value?.summary?.top_5_categories) return [];
 
-  return expenseSummary.value.summary.top_5_categories.map((exp, i) => {
+  return expSummary.value.summary.top_5_categories.map((exp, i) => {
     return {
       label: exp.category__category__name || exp.category__name || "Unknown",
       value: exp.total,
@@ -55,7 +57,7 @@ const categories = computed(() => {
   });
 });
 
-const total = computed(() => expenseSummary.value?.summary?.total_expense);
+const total = computed(() => expSummary.value?.summary?.total_expense);
 
 const menuItems = computed(() => [
   {
@@ -81,36 +83,34 @@ const menuItems = computed(() => [
   },
 ]);
 
-const { request, loading } = useApi();
+const { request } = useApi();
 const expenses = ref({ count: 0, results: [] });
-const expenseSummary = ref();
 const activeItem = ref({});
 const searchValue = ref("");
-
-const fetchExpenses = async (searchQuery = "") => {
-  try {
-    const [expenseResponse, summaryResponse] = await Promise.all([
-      request("get", `/expenses/?search=${searchQuery}`),
-      request("get", `/expenses/period-summary?period=${range.value.value}`),
-    ]);
-    expenses.value = expenseResponse.data;
-    expenseSummary.value = summaryResponse.data;
-    sortedParams.value = "";
-    filteredParams.value = "";
-  } catch (error) {
-    console.error("Error fetching expenses:", error);
-  }
-};
-
-// Watch for changes in search input and fetch expenses
-watch(searchValue, (newValue) => {
-  fetchExpenses(newValue);
+const filters = ref({
+  amount_min: "",
+  amount_max: "",
+  recipient: "",
+  category: "",
+  channel: "",
+  search: "",
 });
+// Only include non-empty filters
+const nonEmptyFilters = computed(() => {
+  return Object.fromEntries(Object.entries(filters.value).filter(([, value]) => value !== ""));
+});
+const { data: allExpenses, loading, refetch: fetchExpenses } = useGetExpenses(nonEmptyFilters);
 
-onMounted(fetchExpenses);
-
-// Watch for changes in range and update summary accordingly
-watch(range, fetchExpenses);
+const period = computed(() => {
+  if (range.value.value === "this_month") {
+    return { period: "range", start_date: thisMonthStart, end_date: thisMonthEnd };
+  }
+  if (range.value.value === "this_year") {
+    return { period: "range", start_date: thisYearStart, end_date: thisYearEnd };
+  }
+  return { period: range.value.value };
+});
+const { data: expSummary } = useGetExpenseSummary(period);
 
 const addExpense = async (payload) => {
   try {
@@ -168,25 +168,25 @@ const sortExpenses = (sortData) => {
   showSortModal.value = false;
 };
 
-const filterExpenses = async (filters) => {
-  try {
-    let queryParams = [];
+const filterExpenses = async (data) => {
+  filters.value = { ...data, category: data.category?.value, channel: data.channel?.value };
+  showFilterModal.value = false;
+  filteredParams.value = Object.entries(nonEmptyFilters.value)
+    .map(([key, value]) => (key == "category" ? data.category.label : value))
+    .join(", ");
+};
 
-    if (filters.amount_min) queryParams.push(`amount_min=${filters.amount_min}`);
-    if (filters.amount_max) queryParams.push(`amount_max=${filters.amount_max}`);
-    if (filters.recipient) queryParams.push(`recipient=${filters.recipient}`);
-    if (filters.category?.value) queryParams.push(`category=${filters.category.value}`);
-    if (filters.channel?.value) queryParams.push(`channel=${filters.channel.value}`);
-
-    const queryString = queryParams.length ? `?${queryParams.join("&")}` : "";
-
-    const { data } = await request("get", `/expenses/${queryString}`);
-    expenses.value = data;
-    filteredParams.value = queryParams.join(", ");
-    showFilterModal.value = false;
-  } catch (error) {
-    console.error("Error fetching filtered expenses:", error);
-  }
+const onClearFilters = () => {
+  filters.value = {
+    amount_min: "",
+    amount_max: "",
+    recipient: "",
+    category: "",
+    channel: "",
+    search: "",
+  };
+  filteredParams.value = "";
+  sortedParams.value = "";
 };
 </script>
 
@@ -197,7 +197,7 @@ const filterExpenses = async (filters) => {
     </div>
 
     <EmptyData
-      v-else-if="!expenses.results?.length && !filteredParams"
+      v-else-if="!allExpenses.results?.length && !filteredParams"
       variant="expense"
       title="No expense recorded"
       subtitle="You have no expense yet"
@@ -215,14 +215,17 @@ const filterExpenses = async (filters) => {
             :options="summaryPeriodOptions"
           />
         </div>
-        <div class="w-full border border-brand-200 mt-4 rounded-xl p-4">
+        <div class="w-full bg-brand-50 border border-brand-200 mt-4 rounded-xl p-4">
           <div class="text-center">
             <h3 class="text-xl font-medium">
               {{ formatNaira(total || 0) }}
             </h3>
-            <p class="text-sm text-brand-400">Total expense</p>
+            <p class="text-sm text-brand-400">Total expenses ({{ range.value }})</p>
 
-            <div class="flex w-full h-6 rounded overflow-hidden border my-4">
+            <div
+              v-if="categories.length"
+              class="flex w-full h-6 rounded overflow-hidden border border-brand-200 my-4"
+            >
               <div
                 v-for="(item, index) in categories"
                 :key="index"
@@ -231,7 +234,7 @@ const filterExpenses = async (filters) => {
                 :class="item.color"
               ></div>
             </div>
-            <ul class="space-y-2 mt-4">
+            <ul v-if="categories.length" class="space-y-2 mt-4">
               <li v-for="v in categories" :key="v.label" class="flex justify-between gap-2 text-sm">
                 <span class="text-brand-600 flex-1 flex items-center gap-1.5 overflow-hidden">
                   <span class="h-3 w-3 block rounded-sm shrink-0" :class="v.color" />
@@ -246,7 +249,7 @@ const filterExpenses = async (filters) => {
 
       <section class="mt-6">
         <div class="flex justify-between items-center mb-2">
-          <h3 class="text-base font-medium">All expenses ({{ expenses.count }})</h3>
+          <h3 class="text-base font-medium">All expenses ({{ allExpenses.count }})</h3>
           <AppButton label="Add" small @click="showModal = true" />
         </div>
         <!-- Filters and sortings  -->
@@ -266,38 +269,41 @@ const filterExpenses = async (filters) => {
               @click="showFilterModal = true"
             />
           </div>
-          <p v-if="sortedParams" class="text-sm mt-2 text-brand-400">
-            Sorted By: <span class="text-brand-500 font-medium">{{ sortedParams }}</span>
-          </p>
-          <!-- <p v-if="filteredParams" class="text-sm mt-2 text-brand-400">
-            Filtered By: <span class="text-brand-500 font-medium">{{ filteredParams }}</span>
-          </p> -->
+          <div
+            v-if="sortedParams || filteredParams"
+            class="flex justify-between items-center gap-4 mt-3"
+          >
+            <p v-if="sortedParams" class="text-sm text-brand-300">
+              Sorted By: <span class="text-brand-400 font-medium">{{ sortedParams }}</span>
+            </p>
+            <p v-if="filteredParams" class="text-sm text-brand-300">
+              Filtered by: <span class="text-brand-400 font-medium">{{ filteredParams }}</span>
+            </p>
+            <AppButton smaller label="Clear all" variant="outlined" @click="onClearFilters" />
+          </div>
         </section>
         <!--  -->
+        <!-- Expense Card -->
+        <!--  -->
         <div
-          v-for="exp in expenses.results"
+          v-for="exp in allExpenses.results"
           :key="exp.id"
-          class="border border-brand-200 p-3 rounded-xl mb-4"
+          class="bg-brand-50 border border-brand-200 p-3 rounded-xl mb-4 cursor-pointer"
+          @click="() => router.push(`/dashboard/expenses/${exp.id}`)"
         >
           <div class="flex justify-between text-sm">
             <h4 class="font-medium">{{ exp.name }}</h4>
             <span class="font-medium">{{ formatNaira(exp.amount) }}</span>
           </div>
           <div class="flex justify-between text-sm text-brand-400 mt-0.5">
-            <p>{{ exp.recipient }}</p>
+            <p>{{ exp.recipient_name || "Unknown" }}</p>
             <span>{{ new Date(exp.date).toDateString() }}</span>
           </div>
           <hr class="border-brand-200 my-2" />
           <div class="flex justify-between gap-1">
             <div class="flex flex-wrap gap-1">
-              <span
-                class="text-brand-300 text-xs border border-brand-200 px-2 py-1 rounded-xl capitalize"
-              >
-                {{ exp.channel }}
-              </span>
-              <span class="text-brand-300 text-xs border border-brand-200 px-2 py-1 rounded-xl">
-                {{ exp.category_name }}
-              </span>
+              <Chip :label="exp.channel" dense />
+              <Chip :label="exp.category_name" dense class="max-w-40 truncate" />
             </div>
             <DropdownMenu :items="menuItems">
               <template #label>
@@ -308,7 +314,7 @@ const filterExpenses = async (filters) => {
         </div>
 
         <div
-          v-if="filteredParams && !expenses.results.length"
+          v-if="filteredParams && !allExpenses.results.length"
           class="flex flex-col justify-center items-center gap-1 py-4"
         >
           <Icon icon="mdi:file-outline" class="text-brand-300 h-10 w-10" />

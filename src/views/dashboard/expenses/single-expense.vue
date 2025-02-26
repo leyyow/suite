@@ -1,6 +1,5 @@
-<script setup lang="ts">
+<script setup>
 import { Icon } from "@iconify/vue";
-import { onMounted } from "vue";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
@@ -9,26 +8,19 @@ import Chip from "~/components/common/chip.vue";
 import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.vue";
 import AddReceiptModal from "~/components/dashboard/expenses/add-receipt-modal.vue";
 import DeleteExpenseModal from "~/components/dashboard/expenses/delete-expense-modal.vue";
+import { useGetSingleExpense } from "~/composables/api/expense";
 import { useApi } from "~/composables/useApi";
+import { formatNaira } from "~/utilities/formatNaira";
 
-const { request, loading } = useApi();
+const { request } = useApi();
 const route = useRoute();
 const router = useRouter();
 
-const expense = ref();
 const showEditModal = ref(false);
 const showReceiptModal = ref(false);
 const showDeleteModal = ref(false);
 
-const fetchExpense = () => {
-  request("get", `/expenses/${route.params.id}`).then(({ data }) => {
-    expense.value = data;
-  });
-};
-
-onMounted(() => {
-  fetchExpense();
-});
+const { data: expense, loading, refetch: fetchExpense } = useGetSingleExpense(route.params.id);
 
 const editExpense = async (payload) => {
   try {
@@ -58,7 +50,10 @@ const onClickReceipt = () => {
 </script>
 
 <template>
-  <div>
+  <div v-if="loading && !expense?.id" class="flex justify-center items-center py-16">
+    <Icon icon="eos-icons:bubble-loading" class="h-20 w-20 text-brand-300" />
+  </div>
+  <div v-else>
     <button
       type="button"
       class="inline-flex gap-1 font-medium text-brand-500 items-center text-sm mb-4 underline"
@@ -69,7 +64,11 @@ const onClickReceipt = () => {
     </button>
     <div class="flex items-center gap-2 border-b border-brand-200 pb-2">
       <img v-if="expense?.receipt" src="" class="h-14 w-14 rounded-lg" />
-      <Icon v-else icon="fluent-emoji-high-contrast:receipt" class="h-10 w-10 text-brand-300" />
+      <Icon
+        v-else
+        icon="fluent-emoji-high-contrast:receipt"
+        class="h-10 w-10 text-brand-300 rotate-180"
+      />
       <h2 class="flex-1 text-base font-medium">{{ expense?.name }}</h2>
       <Chip
         :label="expense?.receipt ? 'View receipt' : 'Add receipt'"
@@ -100,7 +99,7 @@ const onClickReceipt = () => {
           <Icon icon="mdi:clipboard-account" class="h-5 w-5 text-brand-300" />
           <p>To (Recipient)</p>
         </div>
-        <span class="text-right">{{ expense?.recipient }}</span>
+        <span class="text-right">{{ expense?.recipient_name || "Unknown" }}</span>
       </div>
       <!--  -->
       <div class="flex justify-between gap-1">
@@ -108,7 +107,7 @@ const onClickReceipt = () => {
           <Icon icon="mdi:cash-multiple" class="h-5 w-5 text-brand-300" />
           <p>Amount</p>
         </div>
-        <span class="text-right">NGN {{ Number(expense?.amount).toLocaleString() }}</span>
+        <span class="text-right">{{ formatNaira(expense?.amount) }}</span>
       </div>
       <!--  -->
       <div class="flex justify-between gap-1">
@@ -116,11 +115,7 @@ const onClickReceipt = () => {
           <Icon icon="mingcute:card-pay-fill" class="h-5 w-5 text-brand-300" />
           <p>Payment Channel</p>
         </div>
-        <span
-          class="text-brand-300 text-sm border border-brand-200 px-4 py-1.5 rounded-full capitalize"
-        >
-          {{ expense?.channel }}
-        </span>
+        <Chip :label="expense?.channel" />
       </div>
       <!--  -->
       <div class="flex justify-between gap-1">
@@ -128,9 +123,7 @@ const onClickReceipt = () => {
           <Icon icon="duo-icons:dashboard" class="h-5 w-5 text-brand-300" />
           <p>Category</p>
         </div>
-        <span class="text-brand-300 text-sm border border-brand-200 px-4 py-1.5 rounded-full">
-          {{ expense?.category_name }}
-        </span>
+        <Chip :label="expense?.category_name" />
       </div>
       <!--  -->
       <div class="flex justify-between gap-1">
