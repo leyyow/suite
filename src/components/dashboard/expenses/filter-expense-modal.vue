@@ -37,7 +37,6 @@ const onReset = () => {
     category: { label: "", value: "" },
     channel: { label: "", value: "" },
   };
-  emit("submit", {});
 };
 
 onMounted(async () => {
@@ -89,6 +88,7 @@ onMounted(async () => {
       />
 
       <div class="flex gap-1">
+        <!-- pevent closing modal, add a clear button instead to the expensse -page  -->
         <AppButton variant="tonal" label="Reset" @click="onReset" />
         <AppButton type="submit" label="Filter Expense" :loading="loading" class="w-full" />
       </div>
