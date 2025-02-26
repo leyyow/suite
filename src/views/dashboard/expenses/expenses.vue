@@ -74,7 +74,7 @@ const menuItems = computed(() => [
     },
   },
   {
-    label: "Remove",
+    label: "Delete expense",
     class: "text-error",
     icon: "mdi:delete",
     action: () => {
