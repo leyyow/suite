@@ -57,11 +57,13 @@ const removeFile = (event) => {
           <Icon icon="mdi:close" />
         </button>
       </div>
-      <div v-else class="flex flex-col items-center justify-center gap-2 text-center w-full">
-        <Icon icon="meteor-icons:upload-cloud" class="text-brand-500 text-2xl" />
-        <span class="text-sm text-brand-400">Click to upload or drag & drop</span>
-        <span class="text-sm text-brand-300">Max size: (3MB)</span>
-      </div>
+      <slot v-else name="placeholder">
+        <div class="flex flex-col items-center justify-center gap-2 text-center w-full">
+          <Icon icon="meteor-icons:upload-cloud" class="text-brand-500 text-2xl" />
+          <span class="text-sm text-brand-400">Click to upload or drag & drop</span>
+          <span class="text-sm text-brand-300">Max size: (3MB)</span>
+        </div>
+      </slot>
 
       <input
         v-if="!fileName"

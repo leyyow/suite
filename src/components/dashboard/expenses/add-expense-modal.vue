@@ -224,7 +224,16 @@ const allRecipients = computed(() => {
         :options="filteredSubCategories"
       />
 
-      <FileUploadInput v-model="form.receipt" label="Receipt" />
+      <FileUploadInput v-model="form.receipt" label="Receipt">
+        <template v-if="edit && item.receipt" #placeholder>
+          <div class="flex flex-col items-center justify-center text-center gap-1 w-full">
+            <img :src="item.receipt" class="h-40 w-auto rounded-lg" />
+            <span class="underline text-sm text-brand-500">
+              Click or drag/drop to change receipt
+            </span>
+          </div>
+        </template>
+      </FileUploadInput>
 
       <TextArea v-model="form.description" label="Purpose / Description" placeholder="e.g. bread" />
 
