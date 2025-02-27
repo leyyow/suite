@@ -50,7 +50,6 @@ const selectedValue = computed({
           :value="selectedValue?.value"
           :name="label"
           :required="required"
-          aria-hidden="true"
           autoCapitalize="off"
           autoComplete="off"
           class="w-full z-0 h-[1px] select-none text-transparent bg-transparent absolute bottom-0 left-0 !outline-none opacity-0 pointer-events-none shadow-none appearance-none"

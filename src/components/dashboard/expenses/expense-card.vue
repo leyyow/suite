@@ -22,10 +22,7 @@ const menuItems = computed(() => [
 </script>
 
 <template>
-  <div
-    class="bg-brand-50 border border-brand-200 p-3 rounded-xl cursor-pointer"
-    @click="emit('view')"
-  >
+  <div class="bg-brand-50 border border-brand-200 p-3 rounded-xl cursor-pointer">
     <div class="flex justify-between text-sm">
       <h4 class="font-medium">{{ expense.name }}</h4>
       <span class="font-medium">{{ formatNaira(expense.amount) }}</span>
