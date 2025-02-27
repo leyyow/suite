@@ -101,7 +101,7 @@ const addExpense = async (payload) => {
     await createExpense(payload);
     toast.success("Expenses added successfully");
     showModal.value = false;
-    fetchExpenses();
+    await fetchExpenses();
   } catch (err) {
     console.log("Error adding expense:", err);
   }
@@ -113,7 +113,7 @@ const editExpense = async (payload) => {
     await updateExpense({ id: activeItem.value?.id, payload });
     toast.success("Expenses UPDATED successfully");
     showModal.value = false;
-    fetchExpenses();
+    await fetchExpenses();
   } catch (err) {
     console.log("Error adding expense:", err);
   }
@@ -130,7 +130,7 @@ const handleDelete = async () => {
     await deleteExpense(activeItem.value.id);
     toast.success("Expenses DELETED successfully");
     showDeleteModal.value = false;
-    fetchExpenses();
+    await fetchExpenses();
   } catch (err) {
     console.log("Error adding expense:", err);
   }
@@ -158,12 +158,15 @@ const filterExpenses = async (data) => {
   filters.value = {
     ...data,
     category: data.category?.value,
-    channel: data.channel?.value,
     recipient: data.recipient?.value,
   };
   showFilterModal.value = false;
   filteredParams.value = Object.entries(nonEmptyFilters.value)
-    .map(([key, value]) => (["category", "recipient"].includes(key) ? data[key].label : value))
+    .map(([key, value]) => {
+      if (["category", "recipient"].includes(key)) return data[key].label;
+      if (key === "has_receipt") return value ? "Has Receipt" : "No Receipt";
+      return value;
+    })
     .join(", ");
 };
 
@@ -239,7 +242,7 @@ watch(expError, onClearFilters);
 
       <section class="mt-6">
         <div class="flex justify-between items-center mb-2">
-          <h3 class="text-base font-medium">All expenses ({{ allExpenses?.count }})</h3>
+          <h3 class="text-base font-medium">All expenses ({{ allExpenses?.count || 0 }})</h3>
         </div>
         <!-- Filters and sortings  -->
         <section class="mb-4">
@@ -280,30 +283,32 @@ watch(expError, onClearFilters);
 
         <LoadingIcon v-if="loading" />
 
-        <div class="space-y-4">
-          <ExpenseCard
-            v-for="exp in allExpenses?.results"
-            :key="exp.id"
-            :expense="exp"
-            @view="router.push(`/dashboard/expenses/${exp.id}`)"
-            @edit="
-              () => {
-                isEditing = true;
-                showModal = true;
-              }
-            "
-            @delete="showDeleteModal = true"
-            @open:dropdown="activeItem = exp"
-          />
-        </div>
+        <template v-else>
+          <div class="space-y-4">
+            <ExpenseCard
+              v-for="exp in allExpenses?.results"
+              :key="exp.id"
+              :expense="exp"
+              @view="router.push(`/dashboard/expenses/${exp.id}`)"
+              @edit="
+                () => {
+                  isEditing = true;
+                  showModal = true;
+                }
+              "
+              @delete="showDeleteModal = true"
+              @open:dropdown="activeItem = exp"
+            />
+          </div>
 
-        <div
-          v-if="filteredParams && !allExpenses?.results?.length"
-          class="flex flex-col justify-center items-center gap-1 py-4"
-        >
-          <Icon icon="mdi:file-outline" class="text-brand-300 h-10 w-10" />
-          <p class="text-sm text-brand-400">No expenses found for the selected filters</p>
-        </div>
+          <div
+            v-if="filteredParams && !allExpenses?.results?.length"
+            class="flex flex-col justify-center items-center gap-1 py-4"
+          >
+            <Icon icon="mdi:file-outline" class="text-brand-300 h-10 w-10" />
+            <p class="text-sm text-brand-400">No expenses found for the selected filters</p>
+          </div>
+        </template>
       </section>
     </div>
 
@@ -316,7 +321,12 @@ watch(expError, onClearFilters);
       @submit="handleSubmit"
     />
     <DeleteExpenseModal v-model="showDeleteModal" :loading="loadingDelete" @delete="handleDelete" />
-    <FilterExpenseModal v-model="showFilterModal" :loading="loading" @submit="filterExpenses" />
+    <FilterExpenseModal
+      v-model="showFilterModal"
+      :loading="loading"
+      :reset="!filteredParams"
+      @submit="filterExpenses"
+    />
     <SortExpenseModal v-model="showSortModal" :loading="loading" @submit="sortExpenses" />
   </div>
 </template>

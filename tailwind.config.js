@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Atkinson Hyperlegible Next", "serif"],
+        sans: ["Onest", "serif"],
       },
       colors: {
         brand: {

@@ -1,25 +1,37 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import AppButton from "~/components/common/app-button.vue";
 import Modal from "~/components/common/modal.vue";
+import RadioGroup from "~/components/common/radio-group.vue";
 import SelectInput from "~/components/common/select-input.vue";
 import TextInput from "~/components/common/text-input.vue";
 import { useGetExpenseRecipients, useGetExpenseSubCategories } from "~/composables/api/expense";
 
-defineProps({ modelValue: Boolean, loading: Boolean });
+const props = defineProps({ modelValue: Boolean, loading: Boolean, reset: Boolean });
 const emit = defineEmits(["update:modelValue", "submit"]);
 
-const paymentChannels = computed(() =>
-  ["Cash", "Transfer", "Card"].map((v) => ({ label: v, value: v.toLowerCase() })),
-);
+const { data: recipients } = useGetExpenseRecipients();
+const { data: allSubCategories } = useGetExpenseSubCategories();
 
 const form = ref({
   amount_max: "",
   amount_min: "",
   recipient: { label: "", value: "" },
   category: { label: "", value: "" },
-  channel: { label: "", value: "" },
+  channel: "",
+  has_receipt: "",
 });
+
+const paymentChannels = computed(() =>
+  ["Cash", "Transfer", "Card"].map((v) => ({ label: v, value: v.toLowerCase() })),
+);
+
+watch(
+  () => props.reset,
+  (v) => {
+    if (v) onReset();
+  },
+);
 
 const onSubmit = (e) => {
   e.preventDefault();
@@ -32,12 +44,10 @@ const onReset = () => {
     amount_min: "",
     recipient: { label: "", value: "" },
     category: { label: "", value: "" },
-    channel: { label: "", value: "" },
+    channel: "",
+    has_receipt: "",
   };
 };
-
-const { data: recipients } = useGetExpenseRecipients();
-const { data: allSubCategories } = useGetExpenseSubCategories();
 </script>
 
 <template>
@@ -75,11 +85,15 @@ const { data: allSubCategories } = useGetExpenseSubCategories();
         :options="allSubCategories?.results?.map((x) => ({ label: x.name, value: x.id }))"
       />
 
-      <SelectInput
-        v-model="form.channel"
-        label="Payment Channel"
-        placeholder="Select"
-        :options="paymentChannels"
+      <RadioGroup v-model="form.channel" label="Payment Channel" :options="paymentChannels" />
+
+      <RadioGroup
+        v-model="form.has_receipt"
+        label="Receipt"
+        :options="[
+          { label: 'Has Receipt', value: true },
+          { label: 'No Receipt', value: false },
+        ]"
       />
 
       <div class="flex gap-1">

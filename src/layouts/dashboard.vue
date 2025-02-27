@@ -69,6 +69,7 @@ const onAddExpense = (payload) => {
           icon="mdi:logout"
           variant="outlined"
           icon-class="!text-error"
+          small
           @click="handleLogout"
         />
       </div>

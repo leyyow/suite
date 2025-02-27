@@ -1,10 +1,10 @@
 <script setup>
-import { capitalize, toRefs } from "vue";
-import { computed, ref, watch } from "vue";
+import { computed, ref, toRefs, watch } from "vue";
 import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
 import FileUploadInput from "~/components/common/file-upload-input.vue";
 import Modal from "~/components/common/modal.vue";
+import RadioGroup from "~/components/common/radio-group.vue";
 import SelectInput from "~/components/common/select-input.vue";
 import TextArea from "~/components/common/text-area.vue";
 import TextInput from "~/components/common/text-input.vue";
@@ -34,7 +34,7 @@ const form = ref({
   amount: "",
   recipient: { label: "", value: "" },
   date: new Date().toISOString().split("T")[0],
-  channel: { label: "", value: "" },
+  channel: "",
   description: "",
 });
 const newRecipient = ref("");
@@ -72,7 +72,7 @@ watch(
             amount: item.value.amount,
             recipient: { label: item.value.recipient_name, value: item.value.recipient },
             date: item.value.date.slice(0, 10),
-            channel: { label: capitalize(item.value.channel), value: item.value.channel },
+            channel: item.value.channel,
             description: item.value.description || "",
           };
         }
@@ -85,7 +85,7 @@ watch(
         amount: "",
         recipient: { label: "", value: "" },
         date: new Date().toISOString().split("T")[0],
-        channel: { label: "", value: "" },
+        channel: "",
         description: "",
       };
     }
@@ -112,7 +112,6 @@ const onSubmit = (e) => {
   let payload = {
     ...form.value,
     category: form.value.category?.value,
-    channel: form.value.channel?.value,
     recipient: form.value.recipient?.value,
   };
   delete payload.parentCategory;
@@ -126,6 +125,15 @@ const onSubmit = (e) => {
     );
   }
   if (Object.keys(payload).length) {
+    // Convert payload to FormData
+    const formData = new FormData();
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value instanceof File || value instanceof Blob) {
+        formData.append(key, value, value.name); // Ensure files get a name
+      } else {
+        formData.append(key, value);
+      }
+    });
     emit("submit", payload);
   } else {
     toast("Nothing changed");
@@ -193,17 +201,14 @@ const allRecipients = computed(() => {
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2">
-        <TextInput v-model="form.date" type="date" label="Date" required />
+      <TextInput v-model="form.date" type="date" label="Date" required />
 
-        <SelectInput
-          v-model="form.channel"
-          label="Payment Channel"
-          placeholder="Select"
-          required
-          :options="paymentChannels"
-        />
-      </div>
+      <RadioGroup
+        v-model="form.channel"
+        label="Payment Channel"
+        required
+        :options="paymentChannels"
+      />
 
       <SelectInput
         v-model="form.parentCategory"
@@ -219,7 +224,16 @@ const allRecipients = computed(() => {
         :options="filteredSubCategories"
       />
 
-      <FileUploadInput v-model="form.receipt" label="Receipt" />
+      <FileUploadInput v-model="form.receipt" label="Receipt">
+        <template v-if="edit && item.receipt" #placeholder>
+          <div class="flex flex-col items-center justify-center text-center gap-1 w-full">
+            <img :src="item.receipt" class="h-40 w-auto rounded-lg" />
+            <span class="underline text-sm text-brand-500">
+              Click or drag/drop to change receipt
+            </span>
+          </div>
+        </template>
+      </FileUploadInput>
 
       <TextArea v-model="form.description" label="Purpose / Description" placeholder="e.g. bread" />
 
