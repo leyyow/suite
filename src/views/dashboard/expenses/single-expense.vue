@@ -18,30 +18,24 @@ const showEditModal = ref(false);
 const showReceiptModal = ref(false);
 const showDeleteModal = ref(false);
 
-const { data: expense, loading, refetch: fetchExpense } = useGetSingleExpense(route.params.id);
+const { data: expense, loading, refetch } = useGetSingleExpense(route.params.id);
 
 const { mutate: updateExpense, loading: loadingEdit } = useUpdateExpense();
-const editExpense = async (payload) => {
-  try {
-    await updateExpense({ id: expense.value?.id, payload });
+const editExpense = (payload) => {
+  updateExpense({ id: expense.value?.id, payload }).then(() => {
     toast.success("Expenses UPDATED successfully");
     showEditModal.value = false;
-    fetchExpense();
-  } catch (err) {
-    console.log("Error adding expense:", err);
-  }
+    refetch();
+  });
 };
 
 const { mutate: deleteExpense, loading: loadingDelete } = useDeleteExpense();
-const handleDelete = async () => {
-  try {
-    await deleteExpense(expense.value?.id);
+const handleDelete = () => {
+  deleteExpense(expense.value?.id).then(() => {
     toast.success("Expenses DELETED successfully");
     showDeleteModal.value = false;
     router.push("/dashboard/expenses");
-  } catch (err) {
-    console.log("Error deleting expense:", err);
-  }
+  });
 };
 
 const onClickReceipt = () => {

@@ -1,10 +1,10 @@
 <script setup>
-import { computed, ref, onMounted } from "vue";
+import { computed, ref } from "vue";
 import AppButton from "~/components/common/app-button.vue";
 import Modal from "~/components/common/modal.vue";
 import SelectInput from "~/components/common/select-input.vue";
 import TextInput from "~/components/common/text-input.vue";
-import { useApi } from "~/composables/useApi";
+import { useGetExpenseRecipients, useGetExpenseSubCategories } from "~/composables/api/expense";
 
 defineProps({ modelValue: Boolean, loading: Boolean });
 const emit = defineEmits(["update:modelValue", "submit"]);
@@ -13,16 +13,13 @@ const paymentChannels = computed(() =>
   ["Cash", "Transfer", "Card"].map((v) => ({ label: v, value: v.toLowerCase() })),
 );
 
-const subCategories = ref([]);
 const form = ref({
   amount_max: "",
   amount_min: "",
-  recipient: "",
+  recipient: { label: "", value: "" },
   category: { label: "", value: "" },
   channel: { label: "", value: "" },
 });
-
-const { request } = useApi();
 
 const onSubmit = (e) => {
   e.preventDefault();
@@ -33,20 +30,14 @@ const onReset = () => {
   form.value = {
     amount_max: "",
     amount_min: "",
-    recipient: "",
+    recipient: { label: "", value: "" },
     category: { label: "", value: "" },
     channel: { label: "", value: "" },
   };
 };
 
-onMounted(async () => {
-  try {
-    const { data } = await request("get", "/expenses/subcategories/");
-    subCategories.value = data.results || [];
-  } catch (error) {
-    console.error("Error fetching subcategories:", error);
-  }
-});
+const { data: recipients } = useGetExpenseRecipients();
+const { data: allSubCategories } = useGetExpenseSubCategories();
 </script>
 
 <template>
@@ -72,12 +63,16 @@ onMounted(async () => {
         />
       </div>
 
-      <TextInput v-model="form.recipient" label="To (Recipient)" placeholder="e.g. Debola" />
+      <SelectInput
+        v-model="form.recipient"
+        label="Recipient"
+        :options="recipients?.map((x) => ({ label: x.name, value: x.id }))"
+      />
 
       <SelectInput
         v-model="form.category"
         label="Expense Type"
-        :options="subCategories.map((x) => ({ label: x.name, value: x.id }))"
+        :options="allSubCategories?.results?.map((x) => ({ label: x.name, value: x.id }))"
       />
 
       <SelectInput
@@ -88,7 +83,6 @@ onMounted(async () => {
       />
 
       <div class="flex gap-1">
-        <!-- pevent closing modal, add a clear button instead to the expensse -page  -->
         <AppButton variant="tonal" label="Reset" @click="onReset" />
         <AppButton type="submit" label="Filter Expense" :loading="loading" class="w-full" />
       </div>
