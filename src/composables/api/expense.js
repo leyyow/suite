@@ -17,6 +17,7 @@ export function useCreateExpense() {
     url: "/expenses/",
     method: "POST",
     body: data,
+    headers: { "Content-Type": "multipart/form-data" },
   }));
 }
 
@@ -25,6 +26,7 @@ export function useUpdateExpense() {
     url: `/expenses/${id}/`,
     method: "PUT",
     body: payload,
+    headers: { "Content-Type": "multipart/form-data" },
   }));
 }
 

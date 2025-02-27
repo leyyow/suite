@@ -117,8 +117,16 @@ export function useApiMutation(endpointFn) {
     loading.value = true;
     error.value = null;
     try {
-      const { url, method, body } = endpointFn(data);
-      return await apiRequest({ method, url, data: body });
+      const { url, method, body, headers = {} } = endpointFn(data);
+      return await apiRequest({
+        method,
+        url,
+        data: body,
+        headers: {
+          ...api.defaults.headers.common, // Inherit default headers (like Authorization)
+          ...headers, // Merge with custom headers if provided
+        },
+      });
     } catch (err) {
       error.value = err;
       throw err;
