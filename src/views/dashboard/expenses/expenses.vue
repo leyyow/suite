@@ -162,7 +162,11 @@ const filterExpenses = async (data) => {
   };
   showFilterModal.value = false;
   filteredParams.value = Object.entries(nonEmptyFilters.value)
-    .map(([key, value]) => (["category", "recipient"].includes(key) ? data[key].label : value))
+    .map(([key, value]) => {
+      if (["category", "recipient"].includes(key)) return data[key].label;
+      if (key === "has_receipt") return value ? "Has Receipt" : "No Receipt";
+      return value;
+    })
     .join(", ");
 };
 

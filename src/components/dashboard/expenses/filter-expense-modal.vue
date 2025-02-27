@@ -19,6 +19,7 @@ const form = ref({
   recipient: { label: "", value: "" },
   category: { label: "", value: "" },
   channel: "",
+  has_receipt: "",
 });
 
 const paymentChannels = computed(() =>
@@ -43,7 +44,8 @@ const onReset = () => {
     amount_min: "",
     recipient: { label: "", value: "" },
     category: { label: "", value: "" },
-    channel: { label: "", value: "" },
+    channel: "",
+    has_receipt: "",
   };
 };
 </script>
@@ -86,7 +88,7 @@ const onReset = () => {
       <RadioGroup v-model="form.channel" label="Payment Channel" :options="paymentChannels" />
 
       <RadioGroup
-        v-model="form.channel"
+        v-model="form.has_receipt"
         label="Receipt"
         :options="[
           { label: 'Has Receipt', value: true },

@@ -4,15 +4,16 @@ import AppButton from "~/components/common/app-button.vue";
 import FileUploadInput from "~/components/common/file-upload-input.vue";
 import Modal from "~/components/common/modal.vue";
 
-defineProps({ modelValue: Boolean, loading: Boolean });
+defineProps({ modelValue: Boolean, loading: Boolean, id: String });
 const emit = defineEmits(["update:modelValue", "submit"]);
 
 const receipt = ref(null);
 
 const onSubmit = (e) => {
   e.preventDefault();
-  console.log("FORM", receipt.value);
-  //   emit("submit", payload);
+  const formData = new FormData();
+  formData.append("receipt", receipt.value, receipt.value?.name);
+  emit("submit", formData);
 };
 </script>
 

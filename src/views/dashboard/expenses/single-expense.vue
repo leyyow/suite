@@ -24,10 +24,11 @@ const { data: expense, loading, refetch } = useGetSingleExpense(route.params.id)
 
 const { mutate: updateExpense, loading: loadingEdit } = useUpdateExpense();
 const editExpense = (payload) => {
-  updateExpense({ id: expense.value?.id, payload }).then(() => {
+  updateExpense({ id: expense.value?.id, payload }).then(async () => {
     toast.success("Expenses UPDATED successfully");
     showEditModal.value = false;
-    refetch();
+    showReceiptModal.value = false;
+    await refetch();
   });
 };
 
@@ -157,7 +158,7 @@ const onClickReceipt = () => {
       @submit="editExpense"
     />
 
-    <AddReceiptModal v-model="showReceiptModal" :loading="loading" @submit="console.log" />
+    <AddReceiptModal v-model="showReceiptModal" :loading="loadingEdit" @submit="editExpense" />
 
     <Modal :open="openReceipt" title="View Receipt" size="md" @update:open="openReceipt = false">
       <img :src="expense?.receipt" class="w-full h-auto" />
