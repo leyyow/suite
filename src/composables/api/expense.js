@@ -39,7 +39,7 @@ export function useGetExpenseCategories() {
   return useApiQuery("/expenses/categories/");
 }
 
-export function useGetExpenseSubCategoris() {
+export function useGetExpenseSubCategories() {
   return useApiQuery("/expenses/subcategories/");
 }
 

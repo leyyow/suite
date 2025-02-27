@@ -1,6 +1,6 @@
 <script setup>
 import { capitalize, toRefs } from "vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
 import FileUploadInput from "~/components/common/file-upload-input.vue";
@@ -8,8 +8,12 @@ import Modal from "~/components/common/modal.vue";
 import SelectInput from "~/components/common/select-input.vue";
 import TextArea from "~/components/common/text-area.vue";
 import TextInput from "~/components/common/text-input.vue";
-import { useCreateRecipient, useGetExpenseRecipients } from "~/composables/api/expense";
-import { useApi } from "~/composables/useApi";
+import {
+  useCreateRecipient,
+  useGetExpenseCategories,
+  useGetExpenseRecipients,
+  useGetExpenseSubCategories,
+} from "~/composables/api/expense";
 
 const props = defineProps({
   modelValue: Boolean,
@@ -20,7 +24,8 @@ const props = defineProps({
 
 const { edit, item } = toRefs(props);
 const emit = defineEmits(["update:modelValue", "submit"]);
-const { request } = useApi();
+const { data: allCategories } = useGetExpenseCategories();
+const { data: allSubCategories } = useGetExpenseSubCategories();
 
 const form = ref({
   category: { label: "", value: "" },
@@ -40,16 +45,13 @@ const closeNewRpt = () => {
   showAddRpt.value = false;
 };
 
-const categories = ref([]);
-const subCategories = ref([]);
-
 const paymentChannels = computed(() =>
   ["Cash", "Transfer", "Card"].map((v) => ({ label: v, value: v.toLowerCase() })),
 );
 
 const filteredSubCategories = computed(() =>
-  subCategories.value
-    .filter((x) => x.category === form.value.parentCategory?.value)
+  allSubCategories.value?.results
+    ?.filter((x) => x.category === form.value.parentCategory?.value)
     .map((x) => ({ label: x.name, value: x.id })),
 );
 
@@ -60,7 +62,7 @@ watch(
   (val) => {
     if (val) {
       if (val && item.value.id && props.edit) {
-        const sub = subCategories.value.find((x) => x.id === item.value?.category);
+        const sub = allSubCategories.value?.results?.find((x) => x.id === item.value?.category);
         editSub.value = sub;
         if (sub) {
           form.value = {
@@ -135,7 +137,8 @@ const { data: recipients, refetch } = useGetExpenseRecipients();
 const { mutate: createRecipient, loading: loadingRpt } = useCreateRecipient();
 const onAddRecipient = () => {
   if (!newRecipient.value) return toast.error("Recipient Name is required");
-  createRecipient({ name: newRecipient.value }).then(() => {
+  createRecipient({ name: newRecipient.value }).then((res) => {
+    form.value.recipient = { label: res.name, value: res.id };
     toast.success("Recipient Added");
     refetch();
     closeNewRpt();
@@ -143,20 +146,6 @@ const onAddRecipient = () => {
 };
 const allRecipients = computed(() => {
   return recipients.value?.map((x) => ({ label: x.name, value: x.id })) || [];
-});
-
-onMounted(async () => {
-  try {
-    const [catResponse, subResponse] = await Promise.all([
-      request("get", "/expenses/categories/"),
-      request("get", "/expenses/subcategories/"),
-    ]);
-
-    categories.value = catResponse.data.results || [];
-    subCategories.value = subResponse.data.results || [];
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-  }
 });
 </script>
 
@@ -187,14 +176,14 @@ onMounted(async () => {
           :options="allRecipients"
         />
         <button
-          v-if="!showAddRpt"
+          v-if="!showAddRpt && !edit"
           type="button"
           class="text-brand-500 font-medium underline text-sm mt-2"
           @click="showAddRpt = true"
         >
           Add New
         </button>
-        <div v-else class="bg-white py-2 px-3 rounded-lg mt-1">
+        <div v-if="showAddRpt" class="bg-white py-2 px-3 rounded-lg mt-1">
           <h5 class="text-sm mb-2">New Recipient</h5>
           <TextInput v-model="newRecipient" dense label="Name" placeholder="e.g. Debola" required />
           <div class="flex justify-end gap-2 mt-1">
@@ -220,7 +209,7 @@ onMounted(async () => {
         v-model="form.parentCategory"
         label="Category"
         required
-        :options="categories.map((x) => ({ label: x.name, value: x.id }))"
+        :options="allCategories?.results?.map((x) => ({ label: x.name, value: x.id }))"
       />
 
       <SelectInput

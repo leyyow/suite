@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineProps, defineEmits } from "vue";
+import { computed, defineEmits } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { Icon } from "@iconify/vue";
 

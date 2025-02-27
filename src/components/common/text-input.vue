@@ -1,6 +1,6 @@
 <script setup>
 import { Icon } from "@iconify/vue";
-import { ref, defineProps, computed } from "vue";
+import { ref, computed } from "vue";
 
 const props = defineProps({
   modelValue: String,

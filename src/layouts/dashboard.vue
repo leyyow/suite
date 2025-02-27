@@ -26,12 +26,13 @@ const headerLinks = computed(() => [
 
 const action = () => toast("Coming soon");
 const fabMenuItems = [
-  { label: "Product", icon: "fluent:clipboard-note-16-regular", action },
+  { label: "Product", icon: "uim:box", action },
   { label: "Customer", icon: "fluent:person-28-filled", action },
   { label: "Sale", icon: "icon-park-solid:shopping-bag", action },
   {
     label: "Expense",
-    icon: "fluent:reciept-24-filled",
+    icon: "fluent-emoji-high-contrast:receipt",
+    iconClass: "rotate-180",
     action: () => (showExpenseModal.value = true),
   },
 ];
