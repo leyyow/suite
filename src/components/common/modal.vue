@@ -62,6 +62,7 @@ const closeModal = () => {
               <AppButton
                 variant="outlined"
                 icon="material-symbols:close-rounded"
+                small
                 @click="emit('update:open', false)"
               />
             </div>
