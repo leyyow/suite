@@ -5,6 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
 import Chip from "~/components/common/chip.vue";
+import Modal from "~/components/common/modal.vue";
 import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.vue";
 import AddReceiptModal from "~/components/dashboard/expenses/add-receipt-modal.vue";
 import DeleteExpenseModal from "~/components/dashboard/expenses/delete-expense-modal.vue";
@@ -17,6 +18,7 @@ const router = useRouter();
 const showEditModal = ref(false);
 const showReceiptModal = ref(false);
 const showDeleteModal = ref(false);
+const openReceipt = ref(false);
 
 const { data: expense, loading, refetch } = useGetSingleExpense(route.params.id);
 
@@ -40,6 +42,7 @@ const handleDelete = () => {
 
 const onClickReceipt = () => {
   if (!expense.value?.receipt) showReceiptModal.value = true;
+  else openReceipt.value = true;
 };
 </script>
 
@@ -57,7 +60,7 @@ const onClickReceipt = () => {
       Back
     </button>
     <div class="flex items-center gap-2 border-b border-brand-200 pb-2">
-      <img v-if="expense?.receipt" src="" class="h-14 w-14 rounded-lg" />
+      <img v-if="expense?.receipt" :src="expense?.receipt" class="h-14 w-14 rounded-lg" />
       <Icon
         v-else
         icon="fluent-emoji-high-contrast:receipt"
@@ -155,5 +158,9 @@ const onClickReceipt = () => {
     />
 
     <AddReceiptModal v-model="showReceiptModal" :loading="loading" @submit="console.log" />
+
+    <Modal :open="openReceipt" title="View Receipt" size="md" @update:open="openReceipt = false">
+      <img :src="expense?.receipt" class="w-full h-auto" />
+    </Modal>
   </div>
 </template>
