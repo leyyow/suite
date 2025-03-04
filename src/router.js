@@ -57,14 +57,19 @@ const routes = [
         meta: { title: "Inventory" },
       },
       {
-        path: "orders",
-        component: () => import("./views/dashboard/orders.vue"),
-        meta: { title: "Orders" },
-      },
-      {
-        path: "customers",
-        component: () => import("./views/dashboard/customers.vue"),
-        meta: { title: "Customers" },
+        path: "sales",
+        children: [
+          {
+            path: "orders",
+            component: () => import("./views/dashboard/sales/orders/orders.vue"),
+            meta: { title: "Orders" },
+          },
+          {
+            path: "customers",
+            component: () => import("./views/dashboard/sales/customers/customers.vue"),
+            meta: { title: "Customers" },
+          },
+        ],
       },
       {
         path: "expenses",
@@ -85,30 +90,21 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   scrollBehavior() {
-    // to, from, savedPosition
-    return { left: 0, top: 0 }; //savedPosition ||
+    return { left: 0, top: 0 };
   },
   routes,
 });
 
 router.beforeEach((to, _, next) => {
-  // instead of having to check every route record with
-  // to.matched.some(record => record.meta.requiresAuth)
   const authStore = useAuthStore();
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    // this route requires auth, check if logged in
-    // if not, redirect to login page.
     next({
       path: "/auth/signin",
       // save the location we were at to come back later
       query: { redirect: to.fullPath },
     });
   }
-  // if (to.meta.title) {
-  //   document.title = `${to.meta.title} - Leyyow`;
-  // } else {
-  //   document.title = "Leyyow";
-  // }
+  //
   next();
 });
 
