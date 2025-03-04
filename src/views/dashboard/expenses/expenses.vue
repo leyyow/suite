@@ -33,6 +33,7 @@ const summaryPeriodOptions = computed(() => [
   { label: "Yesterday", value: "yesterday" },
   { label: "This Month", value: "this_month" },
   { label: "This Year", value: "this_year" },
+  { label: "All Time", value: "all" },
 ]);
 
 // Default range set to "This Month"
@@ -77,14 +78,11 @@ const filters = ref({
 const nonEmptyFilters = computed(() => {
   return Object.fromEntries(Object.entries(filters.value).filter(([, value]) => value !== ""));
 });
-const {
-  data: allExpenses,
-  loading,
-  error: expError,
-  refetch: fetchExpenses,
-} = useGetExpenses(nonEmptyFilters);
 
 const period = computed(() => {
+  if (range.value.value === "all") {
+    return { period: "range", start_date: "2000-01-01", end_date: thisYearEnd };
+  }
   if (range.value.value === "this_month") {
     return { period: "range", start_date: thisMonthStart, end_date: thisMonthEnd };
   }
@@ -93,7 +91,20 @@ const period = computed(() => {
   }
   return { period: range.value.value };
 });
-const { data: expSummary, loading: loadingSummary } = useGetExpenseSummary(period);
+
+const combinedFilters = computed(() => ({
+  ...nonEmptyFilters.value,
+  ...period.value, // Ensure period is included
+}));
+
+const {
+  data: allExpenses,
+  loading,
+  error: expError,
+  refetch: fetchExpenses,
+} = useGetExpenses(combinedFilters);
+
+const { data: expSummary, loading: loadingSummary } = useGetExpenseSummary(combinedFilters);
 
 const { mutate: createExpense, loading: loadingAdd } = useCreateExpense();
 const addExpense = async (payload) => {
@@ -188,6 +199,15 @@ watch(expError, onClearFilters);
 
 <template>
   <div>
+    <div class="flex justify-end">
+      <SelectInput
+        v-model="range"
+        dense
+        placeholder="Select Range"
+        :options="summaryPeriodOptions"
+      />
+    </div>
+
     <EmptyData
       v-if="!allExpenses?.results?.length && !filteredParams && !loading"
       variant="expense"
@@ -199,21 +219,13 @@ watch(expError, onClearFilters);
 
     <div v-else>
       <section>
-        <div class="flex justify-end">
-          <SelectInput
-            v-model="range"
-            dense
-            placeholder="Select Range"
-            :options="summaryPeriodOptions"
-          />
-        </div>
         <div class="w-full bg-brand-50 border border-brand-200 mt-4 rounded-xl p-4">
           <LoadingIcon v-if="loadingSummary" />
           <div v-else class="text-center">
             <h3 class="text-xl font-medium">
               {{ formatNaira(total || 0) }}
             </h3>
-            <p class="text-sm text-brand-400">Total expenses ({{ range.value }})</p>
+            <p class="text-sm text-brand-400">Total expenses</p>
 
             <div
               v-if="categories.length"
