@@ -6,15 +6,18 @@ import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
 import DropdownMenu from "~/components/common/dropdown-menu.vue";
 import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.vue";
+import LogoutModal from "~/components/others/logout-modal.vue";
 import { useCreateExpense, useGetExpenses } from "~/composables/api/expense";
-import { useAuthStore } from "~/stores/auth";
 
-// Sidebar links with icon and title
-const links = computed(() => [
-  { title: "Home", icon: "solar:home-2-bold", to: "/dashboard" },
-  { title: "Inventory", icon: "fluent:clipboard-note-16-regular", to: "/dashboard/inventory" },
-  { title: "Orders", icon: "icon-park-solid:shopping-bag", to: "/dashboard/orders" },
-  { title: "Customers", icon: "fluent:person-28-filled", to: "/dashboard/customers" },
+const salesLinks = computed(() => [
+  { title: "Production", icon: "solar:home-2-bold", to: "/dashboard/sales" },
+  {
+    title: "Inventory",
+    icon: "fluent:clipboard-note-16-regular",
+    to: "/dashboard/sales/inventory",
+  },
+  { title: "Orders", icon: "icon-park-solid:shopping-bag", to: "/dashboard/sales/orders" },
+  { title: "Customers", icon: "fluent:person-28-filled", to: "/dashboard/sales/customers" },
 ]);
 
 const headerLinks = computed(() => [
@@ -38,16 +41,12 @@ const fabMenuItems = [
 ];
 
 const route = useRoute();
-const authStore = useAuthStore();
+const showExpenseModal = ref(false);
+const signoutModal = ref(false);
 
 const isActive = (path) => computed(() => route.path.startsWith(path));
 const isSalesActive = computed(() => route.path.startsWith("/dashboard/sales"));
 
-const handleLogout = () => {
-  authStore.logout(); // Logs out and redirects to /auth/signin
-};
-
-const showExpenseModal = ref(false);
 const { refetch } = useGetExpenses();
 const { mutate: createExpense, loading: loadingExpense } = useCreateExpense();
 const onAddExpense = (payload) => {
@@ -68,14 +67,15 @@ const onAddExpense = (payload) => {
         <AppButton
           icon="mdi:logout"
           variant="outlined"
+          class="bg-error/10"
           icon-class="!text-error"
           small
-          @click="handleLogout"
+          @click="signoutModal = true"
         />
       </div>
-      <div class="flex w-full border-y border-brand-200">
+      <nav class="flex w-full border-y border-brand-200">
         <component
-          :is="link.title === 'Expenses' ? 'RouterLink' : 'span'"
+          :is="['Expenses', 'Sales'].includes(link.title) ? 'RouterLink' : 'span'"
           v-for="link in headerLinks"
           :key="link.title"
           :to="link.to"
@@ -88,7 +88,7 @@ const onAddExpense = (payload) => {
         >
           {{ link.title }}
         </component>
-      </div>
+      </nav>
     </header>
 
     <!-- Main content area -->
@@ -104,15 +104,15 @@ const onAddExpense = (payload) => {
       >
         <template v-if="isSalesActive">
           <RouterLink
-            v-for="link in links.slice(0, 2)"
+            v-for="link in salesLinks.slice(0, 2)"
             :key="link.title"
             :to="link.to"
             :class="[
               'flex flex-col items-center space-y-1 visib',
-              isActive(link.to).value && link.title !== 'Home'
-                ? 'text-brand-500 border-b border-brand-400'
-                : link.title === 'Home' && route.path === link.to
-                  ? 'text-brand-500 border-b border-brand-400'
+              isActive(link.to).value && link.title !== 'Production'
+                ? 'text-brand-500'
+                : link.title === 'Production' && route.path === link.to
+                  ? 'text-brand-500'
                   : 'text-brand-300',
             ]"
           >
@@ -123,21 +123,21 @@ const onAddExpense = (payload) => {
         <!--  FAB -->
         <DropdownMenu :items="fabMenuItems" menu-class="bottom-full -right-10">
           <template #label>
-            <AppButton icon="uim:plus-square" />
+            <AppButton icon="uim:plus-square" small />
           </template>
         </DropdownMenu>
         <!--  -->
         <template v-if="isSalesActive">
           <RouterLink
-            v-for="link in links.slice(2)"
+            v-for="link in salesLinks.slice(2)"
             :key="link.title"
             :to="link.to"
             :class="[
               'flex flex-col items-center space-y-1',
-              isActive(link.to).value && link.title !== 'Home'
-                ? 'text-brand-500 border-b border-brand-400'
-                : link.title === 'Home' && route.path === link.to
-                  ? 'text-brand-500 border-b border-brand-400'
+              isActive(link.to).value && link.title !== 'Production'
+                ? 'text-brand-500'
+                : link.title === 'Production' && route.path === link.to
+                  ? 'text-brand-500'
                   : 'text-brand-300',
             ]"
           >
@@ -150,5 +150,7 @@ const onAddExpense = (payload) => {
 
     <!--  -->
     <AddExpenseModal v-model="showExpenseModal" :loading="loadingExpense" @submit="onAddExpense" />
+    <!--  -->
+    <LogoutModal v-model="signoutModal" />
   </div>
 </template>

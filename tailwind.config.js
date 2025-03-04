@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Onest", "serif"],
+        sans: ["Manrope", "sans-serif"],
       },
       colors: {
         brand: {

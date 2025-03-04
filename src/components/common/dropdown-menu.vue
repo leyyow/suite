@@ -78,7 +78,7 @@ onUnmounted(() => {
         v-if="isOpen"
         ref="dropdownRef"
         :class="[
-          'absolute z-[100] w-max min-w-40 py-2 px-2 bg-white shadow-lg rounded-md divide-y divide-brand-100',
+          'absolute z-[100] w-max min-w-40 py-2 px-2 bg-white shadow-lg rounded-md divide-y divide-brand-200',
           'ring-1 ring-black/5 focus:outline-none',
           menuClass ? menuClass : positionClass,
         ]"
@@ -87,8 +87,8 @@ onUnmounted(() => {
           v-for="item in items"
           :key="item.label"
           :class="[
-            'group flex w-full items-center gap-2 px-4 py-2 text-sm rounded',
-            'text-brand-400 hover:text-brand-500 hover:bg-brand-100',
+            'group flex w-full items-center gap-2 px-2 py-2 text-sm',
+            'text-brand-400 hover:text-brand-500 hover:bg-brand-100 hover:rounded',
             item.class,
           ]"
           @click.stop="
