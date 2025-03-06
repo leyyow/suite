@@ -36,7 +36,7 @@ const summaryPeriodOptions = computed(() => [
   { label: "All Time", value: "all" },
 ]);
 
-// Default range set to "This Month"
+// Default range set to "This Month" - second option
 const range = ref(summaryPeriodOptions.value[2]);
 
 const router = useRouter();
