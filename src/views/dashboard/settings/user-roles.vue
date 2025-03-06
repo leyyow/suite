@@ -73,11 +73,7 @@ const showInvite = ref(false);
 
     <div v-if="tab === 'roles'">
       <ul>
-        <li
-          v-for="y in ['Admin/Business Owner', 'Manager', 'Staff']"
-          :key="y"
-          class="px-3 py-2 text-sm"
-        >
+        <li v-for="y in ['Admin', 'Manager', 'Staff']" :key="y" class="px-3 py-2 text-sm">
           {{ y }}
         </li>
       </ul>

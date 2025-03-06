@@ -30,7 +30,7 @@ const onSubmit = () => {
       <SelectInput
         v-model="form.role"
         label="Choose Role"
-        :options="['Admin/Business Owner', 'Manager', 'Staff'].map((v) => ({ label: v, value: v }))"
+        :options="['Admin', 'Manager', 'Staff'].map((v) => ({ label: v, value: v }))"
         required
       />
 
