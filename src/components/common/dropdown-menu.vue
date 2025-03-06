@@ -61,7 +61,7 @@ onUnmounted(() => {
 
 <template>
   <div ref="menuRef" class="relative inline-block text-left">
-    <button class="flex items-center gap-2 bg-brand-50" @click.stop="toggleMenu">
+    <button class="flex items-center gap-2 bg-transparent" @click.stop="toggleMenu">
       <slot name="label">{{ label }}</slot>
     </button>
 
@@ -78,11 +78,12 @@ onUnmounted(() => {
         v-if="isOpen"
         ref="dropdownRef"
         :class="[
-          'absolute z-[100] w-max min-w-40 py-2 px-2 bg-white shadow-lg rounded-md divide-y divide-brand-200',
+          'absolute z-[9999] w-max min-w-40 py-2 px-2 bg-white shadow-lg rounded-md divide-y divide-brand-200',
           'ring-1 ring-black/5 focus:outline-none',
           menuClass ? menuClass : positionClass,
         ]"
       >
+        <slot name="preprend"> </slot>
         <button
           v-for="item in items"
           :key="item.label"

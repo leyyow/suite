@@ -18,7 +18,7 @@ const props = defineProps({
   variant: {
     type: String,
     default: "filled",
-    validator: (v) => ["filled", "outlined", "tonal"].includes(v),
+    validator: (v) => ["filled", "outlined", "tonal", "text"].includes(v),
   },
 });
 
@@ -42,15 +42,17 @@ const emitClick = (event) => {
         'border border-brand-200 text-brand-500 bg-brand-50 focus:ring-brand-500/50',
       variant === 'tonal' &&
         'border border-brand-200 text-brand-500 bg-brand-500/20 focus:ring-brand-500/50',
-      icon && !label && !small
-        ? 'h-11 w-11'
-        : icon && !label && small
-          ? 'h-9 w-9'
-          : smaller
-            ? 'h-8 text-sm px-4'
-            : small
-              ? 'h-10 text-sm px-4'
-              : 'h-12 text-sm px-6',
+      variant === 'text'
+        ? 'text-brand-500 text-sm focus:ring-0 focus:outline-none'
+        : icon && !label && !small
+          ? 'h-11 w-11'
+          : icon && !label && small
+            ? 'h-9 w-9'
+            : smaller
+              ? 'h-8 text-sm px-4'
+              : small
+                ? 'h-10 text-sm px-4'
+                : 'h-12 text-sm px-6',
       disabled || loading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
       props.class,
       props.iconClass,
