@@ -6,7 +6,7 @@ import FileUploadInput from "~/components/common/file-upload-input.vue";
 import Modal from "~/components/common/modal.vue";
 import RadioGroup from "~/components/common/radio-group.vue";
 import SelectInput from "~/components/common/select-input.vue";
-import TextArea from "~/components/common/text-area.vue";
+import TextArea from "~/components/common/text-area-input.vue";
 import TextInput from "~/components/common/text-input.vue";
 import {
   useCreateRecipient,

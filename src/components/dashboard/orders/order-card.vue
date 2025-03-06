@@ -5,17 +5,34 @@ import Chip from "~/components/common/chip.vue";
 import DropdownMenu from "~/components/common/dropdown-menu.vue";
 import { formatNaira } from "~/utilities/formatNaira";
 
-defineProps({ expense: { type: Object, default: () => ({}) } });
-const emit = defineEmits(["view", "delete", "edit", "open:dropdown"]);
+defineProps({
+  expense: { type: Object, default: () => ({}) },
+  showActions: { type: Boolean, default: true },
+});
+const emit = defineEmits([
+  "view",
+  "delete",
+  "edit",
+  "open:dropdown",
+  "edit:date",
+  "complete",
+  "issue",
+  "share",
+  "edit:payment",
+  "return",
+]);
 
 const menuItems = computed(() => [
-  { label: "Mark as complete", action: () => {} },
-  { label: "Mark as issue", action: () => {} },
-  { label: "Copy order link", action: () => {} },
+  { label: "Edit date", action: () => emit("edit:date") },
+  { label: "Mark as complete", action: () => emit("complete") },
+  { label: "Raise issue", action: () => emit("issue") },
+  { label: "Share invoice/receipt", action: () => emit("share") },
+  { label: "Update payment", action: () => emit("edit:payment") },
+  { label: "Return item", action: () => emit("return") },
   {
-    label: "Cancel order",
+    label: "Delete order",
     class: "text-error",
-    action: () => {},
+    action: () => emit("delete"),
   },
 ]);
 </script>
@@ -43,7 +60,7 @@ const menuItems = computed(() => [
     <hr class="border-brand-200 my-2" />
     <div class="flex justify-between gap-1">
       <Chip label="Paid" dense />
-      <DropdownMenu :items="menuItems">
+      <DropdownMenu v-if="showActions" :items="menuItems">
         <template #label>
           <Icon icon="tabler:dots" class="text-lg" @click="emit('open:dropdown')" />
         </template>

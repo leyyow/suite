@@ -23,9 +23,9 @@ import {
 import { formatNaira } from "~/utilities/formatNaira";
 
 const now = new Date();
-const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 2).toISOString().split("T")[0];
 const thisMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
-const thisYearStart = new Date(now.getFullYear(), 0, 1).toISOString().split("T")[0];
+const thisYearStart = new Date(now.getFullYear(), 0, 2).toISOString().split("T")[0];
 const thisYearEnd = new Date(now.getFullYear(), 11, 31).toISOString().split("T")[0];
 
 const summaryPeriodOptions = computed(() => [
@@ -37,7 +37,7 @@ const summaryPeriodOptions = computed(() => [
 ]);
 
 // Default range set to "This Month"
-const range = ref(summaryPeriodOptions.value[2]);
+const range = ref(summaryPeriodOptions.value[4]);
 
 const router = useRouter();
 const showModal = ref(false);

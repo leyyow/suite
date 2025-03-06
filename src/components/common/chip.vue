@@ -27,7 +27,7 @@ const variantClass = computed(() => {
   <span
     :class="[
       variantClass,
-      'rounded-full capitalize',
+      'rounded-full',
       dense ? 'px-2.5 py-1 text-xs' : 'px-3 py-2 text-sm',
       props.class,
     ]"
