@@ -19,7 +19,7 @@ const emit = defineEmits(["update:modelValue", "delete"]);
       <Icon icon="weui:delete-on-filled" class="text-error h-14 w-14" />
       <p class="text-base font-medium">Do you want to delete this order?</p>
       <p class="text-sm text-brand-400 mb-4">
-        This expense will be completely remove all records of this order.
+        This will completely remove all records of this order.
       </p>
 
       <OrderCard :show-actions="false" />
