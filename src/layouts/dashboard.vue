@@ -137,7 +137,10 @@ const title = computed(() => route.meta.title);
     </main>
 
     <!-- Bottom Navbar (for small screens) -->
-    <nav class="bg-brand-100 border-t border-brand-200 sticky bottom-0 w-full shadow-lg">
+    <nav
+      v-if="!title.includes('settings')"
+      class="bg-brand-100 border-t border-brand-200 sticky bottom-0 w-full shadow-lg"
+    >
       <div
         class="flex p-2 h-14"
         :class="{ 'justify-around': isSalesActive, 'justify-center': !isSalesActive }"
