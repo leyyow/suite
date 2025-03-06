@@ -7,7 +7,7 @@ const router = useRouter();
 
 <template>
   <div>
-    <ul class="mt-4 border-t border-brand-200">
+    <ul>
       <li
         :class="[
           'px-4 py-3 text-sm cursor-pointer hover:bg-brand-500/10 hover:text-brand-500',

@@ -138,7 +138,7 @@ const title = computed(() => route.meta.title);
 
     <!-- Bottom Navbar (for small screens) -->
     <nav
-      v-if="!title.includes('settings')"
+      v-if="!route.path.includes('settings')"
       class="bg-brand-100 border-t border-brand-200 sticky bottom-0 w-full shadow-lg"
     >
       <div
