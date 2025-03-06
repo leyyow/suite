@@ -7,8 +7,6 @@ const router = useRouter();
 
 <template>
   <div>
-    <h2 class="font-semibold text-base mb-3">Settings</h2>
-
     <ul class="mt-4 border-t border-brand-200">
       <li
         :class="[
