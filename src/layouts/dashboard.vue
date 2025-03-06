@@ -79,6 +79,7 @@ const headerActions = computed(() => [
 
 const withBackButton = computed(() => route.meta.withBackButton);
 const title = computed(() => route.meta.title);
+const isSettingsPage = computed(() => route.path.includes("settings"));
 </script>
 
 <template>
@@ -138,7 +139,7 @@ const title = computed(() => route.meta.title);
 
     <!-- Bottom Navbar (for small screens) -->
     <nav
-      v-if="!route.path.includes('settings')"
+      v-if="!isSettingsPage"
       class="bg-brand-100 border-t border-brand-200 sticky bottom-0 w-full shadow-lg"
     >
       <div
