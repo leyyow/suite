@@ -60,9 +60,24 @@ const routes = [
         path: "sales",
         children: [
           {
+            path: "",
+            component: () => import("./views/dashboard/sales/sales.vue"),
+            meta: { title: "Sales" },
+          },
+          {
             path: "orders",
-            component: () => import("./views/dashboard/sales/orders/orders.vue"),
-            meta: { title: "Orders" },
+            children: [
+              {
+                path: "",
+                component: () => import("./views/dashboard/sales/orders/orders.vue"),
+                meta: { title: "Orders" },
+              },
+              {
+                path: "new",
+                component: () => import("./views/dashboard/sales/orders/new.vue"),
+                meta: { title: "New Order" },
+              },
+            ],
           },
           {
             path: "customers",
@@ -80,6 +95,23 @@ const routes = [
         path: "expenses/:id",
         component: () => import("./views/dashboard/expenses/single-expense.vue"),
         meta: { title: "Expense details" },
+      },
+      //
+      {
+        path: "settings",
+
+        children: [
+          {
+            path: "",
+            component: () => import("./views/dashboard/settings/settings.vue"),
+            meta: { title: "Settings", withBackButton: true },
+          },
+          {
+            path: "user-roles",
+            component: () => import("./views/dashboard/settings/user-roles.vue"),
+            meta: { title: "Staff & Users (Roles)", withBackButton: true },
+          },
+        ],
       },
       { path: ":pathMatch(.*)*", component: () => import("./views/404.vue") },
     ],
