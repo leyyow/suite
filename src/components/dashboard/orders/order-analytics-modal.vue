@@ -1,6 +1,6 @@
 <script setup>
 import Modal from "~/components/common/modal.vue";
-import SummaryCard from "./summary-card.vue";
+import SummaryCard from "../sales/summary-card.vue";
 import {
   Chart as ChartJS,
   CategoryScale,
