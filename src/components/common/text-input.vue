@@ -9,6 +9,8 @@ const props = defineProps({
   label: String,
   required: Boolean,
   dense: Boolean,
+  min: Number,
+  max: Number,
 });
 
 const emit = defineEmits(["update:modelValue", "enter"]);
@@ -35,6 +37,8 @@ const inputType = computed(() =>
           'focus:border-brand-500 focus:outline-none focus:ring focus:ring-brand-500/10',
         ]"
         :required="required"
+        :min="min"
+        :max="max"
         @input="emit('update:modelValue', $event.target.value)"
       />
       <button

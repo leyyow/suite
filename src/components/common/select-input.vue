@@ -7,7 +7,7 @@ const props = defineProps({
   modelValue: Object, // Two-way binding (Selected Item)
   options: { type: Array, required: true }, // List of options [{ label, value }]
   label: String, // Optional label text
-  placeholder: { type: String, default: "Select an option" }, // Default placeholder
+  placeholder: { type: String, default: "Select..." }, // Default placeholder
   required: Boolean, // Required field
   dense: Boolean, // Compact mode (smaller height)
 });

@@ -13,6 +13,7 @@ const emit = defineEmits(["update:modelValue", "delete"]);
     :open="modelValue"
     title="Delete Order"
     size="md"
+    centered
     @update:open="emit('update:modelValue', $event)"
   >
     <div class="flex flex-col items-center justify-center gap-2 text-center">
