@@ -79,13 +79,13 @@ async function apiRequest(config) {
 }
 
 // Reusable API Query (GET Requests)
-export function useApiQuery(endpoint, params = {}, enabled = true) {
+export function useApiQuery(endpoint, params = {}, skip = true) {
   const data = ref(null);
   const error = ref(null);
   const loading = ref(false);
 
   const fetchData = async () => {
-    if (!enabled) return;
+    if (skip) return;
     loading.value = true;
     error.value = null;
 
