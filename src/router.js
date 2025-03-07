@@ -52,11 +52,6 @@ const routes = [
         meta: { title: "Dashboard" },
       },
       {
-        path: "inventory",
-        component: () => import("./views/dashboard/inventory.vue"),
-        meta: { title: "Inventory" },
-      },
-      {
         path: "sales",
         children: [
           {
