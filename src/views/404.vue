@@ -16,14 +16,12 @@ const links = [
   },
   {
     title: "Pricing",
-    description:
-      "Explore our investment plans and discover the best investment options to fit your financial goals.",
+    description: "Explore our pricing plans and discover the best options for your business goals.",
     href: "/pricing",
   },
   {
     title: "Homepage",
-    description:
-      "Return to the main page and explore our investment opportunities and platform features.",
+    description: "Return to the main page - where it all started.",
     href: "/",
   },
 ];

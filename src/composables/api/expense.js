@@ -1,7 +1,7 @@
 import { useApiMutation, useApiQuery } from "./api";
 
-export function useGetExpenses(params) {
-  return useApiQuery(`/expenses/`, params);
+export function useGetExpenses(params, { skip = false }) {
+  return useApiQuery(`/expenses/`, params, skip);
 }
 
 export function useGetExpenseSummary(params) {

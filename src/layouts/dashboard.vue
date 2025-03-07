@@ -5,6 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
 import DropdownMenu from "~/components/common/dropdown-menu.vue";
+import AddCustomerModal from "~/components/dashboard/customers/add-customer-modal.vue";
 import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.vue";
 import LogoutModal from "~/components/others/logout-modal.vue";
 import { useCreateExpense, useGetExpenses } from "~/composables/api/expense";
@@ -30,7 +31,7 @@ const headerLinks = computed(() => [
 const action = () => toast("Coming soon");
 const fabMenuItems = [
   { label: "Product", icon: "uim:box", action },
-  { label: "Customer", icon: "fluent:person-28-filled", action },
+  { label: "Customer", icon: "fluent:person-28-filled", action: () => (showCustomer.value = true) },
   { label: "Order", icon: "icon-park-solid:shopping-bag", action },
   {
     label: "Expense",
@@ -43,12 +44,13 @@ const fabMenuItems = [
 const route = useRoute();
 const router = useRouter();
 const showExpenseModal = ref(false);
+const showCustomer = ref(false);
 const signoutModal = ref(false);
 
 const isActive = (path) => computed(() => route.path.startsWith(path));
 const isSalesActive = computed(() => route.path.startsWith("/dashboard/sales"));
 
-const { refetch } = useGetExpenses();
+const { refetch } = useGetExpenses({}, { skip: true });
 const { mutate: createExpense, loading: loadingExpense } = useCreateExpense();
 const onAddExpense = (payload) => {
   createExpense(payload).then(() => {
@@ -79,7 +81,6 @@ const headerActions = computed(() => [
 
 const withBackButton = computed(() => route.meta.withBackButton);
 const title = computed(() => route.meta.title);
-const isSettingsPage = computed(() => route.path.includes("settings"));
 </script>
 
 <template>
@@ -139,7 +140,7 @@ const isSettingsPage = computed(() => route.path.includes("settings"));
 
     <!-- Bottom Navbar (for small screens) -->
     <nav
-      v-if="!isSettingsPage"
+      v-if="!withBackButton"
       class="bg-brand-100 border-t border-brand-200 sticky bottom-0 w-full shadow-lg"
     >
       <div
@@ -194,6 +195,7 @@ const isSettingsPage = computed(() => route.path.includes("settings"));
 
     <!--  -->
     <AddExpenseModal v-model="showExpenseModal" :loading="loadingExpense" @submit="onAddExpense" />
+    <AddCustomerModal v-model="showCustomer" />
     <!--  -->
     <LogoutModal v-model="signoutModal" />
   </div>

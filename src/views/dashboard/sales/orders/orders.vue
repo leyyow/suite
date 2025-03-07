@@ -12,7 +12,7 @@ import OrderIssuesModal from "~/components/dashboard/orders/order-issues-modal.v
 import PaymentHistoryModal from "~/components/dashboard/orders/payment-history-modal.vue";
 import ReturnItemsModal from "~/components/dashboard/orders/return-items-modal.vue";
 import ShareOrderInvoiceModal from "~/components/dashboard/orders/share-order-invoice-modal.vue";
-import SummaryCard from "~/components/dashboard/orders/summary-card.vue";
+import SummaryCard from "~/components/dashboard/sales/summary-card.vue";
 import UpdatePaymentModal from "~/components/dashboard/orders/update-payment-modal.vue";
 import ViewIssueModal from "~/components/dashboard/orders/view-issue-modal.vue";
 import { formatNaira } from "~/utilities/formatNaira";

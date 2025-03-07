@@ -52,11 +52,6 @@ const routes = [
         meta: { title: "Dashboard" },
       },
       {
-        path: "inventory",
-        component: () => import("./views/dashboard/inventory.vue"),
-        meta: { title: "Inventory" },
-      },
-      {
         path: "sales",
         children: [
           {
@@ -83,6 +78,16 @@ const routes = [
             path: "customers",
             component: () => import("./views/dashboard/sales/customers/customers.vue"),
             meta: { title: "Customers" },
+          },
+          {
+            path: "customers/:id",
+            component: () => import("./views/dashboard/sales/customers/single.vue"),
+            meta: { title: "Customer details", withBackButton: true },
+          },
+          {
+            path: "inventory",
+            component: () => import("./views/dashboard/sales/inventory/products.vue"),
+            meta: { title: "Inventory" },
           },
         ],
       },
