@@ -84,6 +84,11 @@ const routes = [
             component: () => import("./views/dashboard/sales/customers/customers.vue"),
             meta: { title: "Customers" },
           },
+          {
+            path: "customers/:id",
+            component: () => import("./views/dashboard/sales/customers/single.vue"),
+            meta: { title: "Customer details", withBackButton: true },
+          },
         ],
       },
       {
