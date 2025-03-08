@@ -1,99 +1,67 @@
 <script setup>
-import { ref, computed, watch, defineEmits } from "vue";
+import { ref, computed } from "vue";
 
 const props = defineProps({
-  steps: { type: Array, required: true }, // List of step labels
-  currentStep: { type: Number, default: 1 }, // Default step
+  steps: { type: Array, required: true }, // Step array from parent
+  initialStep: { type: Number, default: 0 }, // Default start step
 });
 
-// Declare emitted events
-defineEmits(["update:currentStep"]);
+const emit = defineEmits(["update:step"]); // Event to notify parent
+const currentStep = ref(props.initialStep);
 
-// Local reactive state for animation
-const activeStep = ref(props.currentStep);
+// Move to next step
+const onNext = () => {
+  if (currentStep.value < props.steps.length - 1) {
+    currentStep.value++;
+    emit("update:step", currentStep.value);
+  }
+};
 
-// Watch for prop changes and animate
-watch(
-  () => props.currentStep,
-  (newStep) => {
-    activeStep.value = newStep;
-  },
-);
+// Move to previous step
+const onPrev = () => {
+  if (currentStep.value > 0) {
+    currentStep.value--;
+    emit("update:step", currentStep.value);
+  }
+};
 
-// Computed step width for progress bar
-const stepWidth = computed(() => `${((activeStep.value - 1) / (props.steps.length - 1)) * 100}%`);
+// Dynamic step status
+const isActive = (index) => index === currentStep.value;
+const isCompleted = (index) => index < currentStep.value;
+
+const stepPercentage = computed(() => ((currentStep.value + 1) / props.steps.length) * 100);
 </script>
 
 <template>
-  <div class="w-full max-w-xl mx-auto">
-    <!-- Stepper -->
+  <div class="w-full">
+    <!-- Stepper Header -->
     <div class="relative flex items-center justify-between mb-6">
-      <div class="absolute top-1/2 w-full h-1 bg-gray-300 rounded transform -translate-y-1/2"></div>
+      <div class="absolute w-full bg-brand-200 h-0.5"></div>
       <div
-        class="absolute top-1/2 h-1 bg-green-500 rounded transition-all duration-500"
-        :style="{ width: stepWidth }"
+        class="absolute h-0.5 bg-brand-500 transition-all"
+        :style="{ width: stepPercentage + '%' }"
       ></div>
 
-      <div v-for="(step, index) in steps" :key="index" class="relative flex flex-col items-center">
-        <div
-          class="w-10 h-10 flex items-center justify-center rounded-full font-semibold text-white transition-all duration-300"
-          :class="
-            activeStep > index + 1
-              ? 'bg-green-500'
-              : activeStep === index + 1
-                ? 'bg-blue-500'
-                : 'bg-gray-400'
-          "
-        >
-          {{ index + 1 }}
-        </div>
-        <p class="text-sm mt-2">{{ step }}</p>
+      <div
+        v-for="(step, index) in steps"
+        :key="index"
+        :class="[
+          'relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold transition-all',
+          isActive(index)
+            ? 'bg-brand-50 border border-brand-500 text-brand-500'
+            : isCompleted(index)
+              ? 'bg-brand-500 text-white'
+              : 'bg-brand-50 border border-brand-200 text-brand-300/60',
+          index > 0 ? 'ml-10' : '',
+        ]"
+      >
+        {{ index + 1 }}
       </div>
     </div>
 
-    <!-- Animated Step Content -->
-    <transition-group name="fade" tag="div">
-      <div
-        v-for="(step, index) in steps"
-        v-show="activeStep === index + 1"
-        :key="index"
-        class="text-center p-4 bg-white shadow-md rounded-lg"
-      >
-        <p class="text-lg font-semibold">Step {{ index + 1 }}: {{ step }}</p>
-      </div>
-    </transition-group>
-
-    <!-- Controls -->
-    <div class="flex justify-between mt-6">
-      <button
-        :disabled="activeStep === 1"
-        class="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50 transition-all"
-        @click="$emit('update:currentStep', Math.max(1, activeStep - 1))"
-      >
-        Previous
-      </button>
-      <button
-        :disabled="activeStep === steps.length"
-        class="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50 transition-all"
-        @click="$emit('update:currentStep', Math.min(steps.length, activeStep + 1))"
-      >
-        Next
-      </button>
+    <!-- Step Content Slot -->
+    <div class="p-1 transition-opacity duration-300">
+      <slot :step="currentStep" :on-prev="onPrev" :on-next="onNext"></slot>
     </div>
   </div>
 </template>
-
-<style>
-/* Fade transition */
-.fade-enter-active,
-.fade-leave-active {
-  transition:
-    opacity 0.4s ease-in-out,
-    transform 0.4s ease-in-out;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
-</style>

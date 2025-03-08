@@ -6,30 +6,44 @@ import SummaryCard from "~/components/dashboard/sales/summary-card.vue";
 import { formatNaira } from "~/utilities/formatNaira";
 import ProductCard from "~/components/dashboard/inventory/product-card.vue";
 import DeleteProductModal from "~/components/dashboard/inventory/delete-product-modal.vue";
+import { useRouter } from "vue-router";
 
 const empty = ref(false);
 
 const summaryStats = computed(() => [
-  { label: "Total Inventory", value: "500", icon: "BagHappy", iconColor: "text-[#f98636]" },
+  {
+    label: "Total Inventory",
+    value: "500",
+    icon: "solar:shop-bold-duotone",
+    color: "text-pink-600",
+  },
   {
     label: "Inventory Value",
     value: formatNaira(2400000),
-    icon: "ChartSquare",
-    iconColor: "text-[#2277f7]",
+    icon: "solar:wallet-money-bold-duotone",
+    color: "text-cyan-500",
   },
-  { label: "New Product", value: 30, icon: "User", iconColor: "text-[#c212d1]" },
-  { label: "Low Stock", value: 20, icon: "TruckTick", iconColor: "text-brand-500" },
+  {
+    label: "New Product",
+    value: 30,
+    icon: "solar:shop-bold-duotone",
+    color: "text-purple-600",
+  },
+  {
+    label: "Low Stock",
+    value: 20,
+    icon: "solar:graph-down-bold-duotone",
+    color: "text-yellow-600",
+  },
 ]);
 
 const searchValue = ref("");
 
 // const selectedOrder = ref(null);
-
-const showView = ref(false);
-const showEdit = ref(false);
-const showDuplicate = ref(false);
 const showShare = ref(false);
 const showDelete = ref(false);
+
+const router = useRouter();
 </script>
 
 <template>
@@ -59,9 +73,11 @@ const showDelete = ref(false);
           <ProductCard
             v-for="v in 12"
             :key="v"
-            @view="showView = true"
-            @edit="showEdit = true"
-            @duplicate="showDuplicate = true"
+            @view="() => router.push(`/dashboard/sales/inventory/${v}`)"
+            @edit="() => router.push(`/dashboard/sales/inventory/edit?id=${v}`)"
+            @duplicate="
+              () => router.push(`/dashboard/sales/inventory/create?action=duplicate&id=${v}`)
+            "
             @share="showShare = true"
             @delete="showDelete = true"
           />
