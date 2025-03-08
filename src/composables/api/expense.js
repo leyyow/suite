@@ -1,6 +1,6 @@
 import { useApiMutation, useApiQuery } from "./api";
 
-export function useGetExpenses(params, { skip = false }) {
+export function useGetExpenses(params = {}, { skip = false } = {}) {
   return useApiQuery(`/expenses/`, params, skip);
 }
 

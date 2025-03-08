@@ -104,7 +104,6 @@ const routes = [
       //
       {
         path: "settings",
-
         children: [
           {
             path: "",
