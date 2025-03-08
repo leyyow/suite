@@ -118,7 +118,7 @@ const onFileChange = (event) => {
             v-else
             class="h-24 w-24 rounded-lg bg-brand-200 flex flex-col items-center justify-center text-brand-300"
           >
-            <Icon icon="mdi:account" class="text-brand-500 h-16 w-16" />
+            <Icon icon="duo-icons:user" class="text-brand-500 h-16 w-16" />
           </span>
           <input id="avatar" type="file" accept="image/*" class="hidden" @change="onFileChange" />
         </label>

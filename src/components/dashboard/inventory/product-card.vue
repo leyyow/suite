@@ -2,7 +2,7 @@
 import { Icon } from "@iconify/vue";
 import { computed, ref } from "vue";
 import Chip from "~/components/common/chip.vue";
-import DropdownMenu from "~/components/common/dropdown-menu.vue";
+import Dropdown from "~/components/common/dropdown.vue";
 import Switch from "~/components/common/switch.vue";
 import { formatNaira } from "~/utilities/formatNaira";
 
@@ -16,7 +16,7 @@ const menuItems = computed(() => [
   { label: "View product", action: () => emit("view") },
   { label: "Edit product", action: () => emit("edit") },
   { label: "Duplicate product", action: () => emit("duplicate") },
-  { label: "Copy / Share link", action: () => emit("share") },
+  // { label: "Copy / Share link", action: () => emit("share") },
   {
     label: "Delete product",
     class: "text-error",
@@ -29,17 +29,20 @@ const enabled = ref(true);
 <template>
   <div class="w-full bg-brand-50 border border-brand-200 p-3 rounded-xl cursor-pointer text-left">
     <div class="flex gap-2.5">
-      <img class="h-12 w-12 bg-brand-200 rounded-lg" />
+      <!-- <img class="h-12 w-12 bg-brand-200 rounded-lg" /> -->
+      <span class="h-12 w-12 rounded-lg bg-brand-200 flex items-center justify-center">
+        <Icon icon="solar:bag-4-bold-duotone" class="text-brand-500 h-8 w-8" />
+      </span>
       <div class="text-sm flex-1 truncate">
         <h4 class="text-sm truncate mb-1">Derby shoes</h4>
         <p class="truncate font-medium">{{ formatNaira(20000) }}</p>
       </div>
       <div v-if="showActions">
-        <DropdownMenu :items="menuItems">
+        <Dropdown :items="menuItems">
           <template #label>
             <Icon icon="tabler:dots" class="text-lg" @click="emit('open:dropdown')" />
           </template>
-        </DropdownMenu>
+        </Dropdown>
       </div>
     </div>
     <hr class="border-brand-200 my-2" />

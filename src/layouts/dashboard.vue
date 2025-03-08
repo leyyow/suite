@@ -4,21 +4,21 @@ import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
-import DropdownMenu from "~/components/common/dropdown-menu.vue";
+import Dropdown from "~/components/common/dropdown.vue";
 import AddCustomerModal from "~/components/dashboard/customers/add-customer-modal.vue";
 import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.vue";
 import LogoutModal from "~/components/others/logout-modal.vue";
 import { useCreateExpense, useGetExpenses } from "~/composables/api/expense";
 
 const salesLinks = computed(() => [
-  { title: "Production", icon: "solar:home-2-bold", to: "/dashboard/sales" },
+  { title: "Production", icon: "duo-icons:building", to: "/dashboard/sales" },
   {
     title: "Inventory",
-    icon: "fluent:clipboard-note-16-regular",
+    icon: "solar:shop-bold-duotone",
     to: "/dashboard/sales/inventory",
   },
-  { title: "Orders", icon: "icon-park-solid:shopping-bag", to: "/dashboard/sales/orders" },
-  { title: "Customers", icon: "fluent:person-28-filled", to: "/dashboard/sales/customers" },
+  { title: "Orders", icon: "solar:bag-smile-bold-duotone", to: "/dashboard/sales/orders" },
+  { title: "Customers", icon: "duo-icons:user", to: "/dashboard/sales/customers" },
 ]);
 
 const headerLinks = computed(() => [
@@ -30,9 +30,13 @@ const headerLinks = computed(() => [
 
 const action = () => toast("Coming soon");
 const fabMenuItems = [
-  { label: "Product", icon: "uim:box", action },
-  { label: "Customer", icon: "fluent:person-28-filled", action: () => (showCustomer.value = true) },
-  { label: "Order", icon: "icon-park-solid:shopping-bag", action },
+  {
+    label: "Product",
+    icon: "uim:box",
+    action: () => router.push("/dashboard/sales/inventory/create"),
+  },
+  { label: "Customer", icon: "duo-icons:user", action: () => (showCustomer.value = true) },
+  { label: "Order", icon: "solar:bag-smile-bold-duotone", action },
   {
     label: "Expense",
     icon: "fluent-emoji-high-contrast:receipt",
@@ -61,7 +65,7 @@ const onAddExpense = (payload) => {
 };
 
 const headerActions = computed(() => [
-  { label: "Profile", icon: "fluent:person-28-filled", action },
+  { label: "Profile", icon: "duo-icons:user", action },
   { label: "Store", icon: "uim:box", action },
   { label: "Billing", icon: "uim:box", action },
   {
@@ -99,20 +103,23 @@ const title = computed(() => route.meta.title);
       <template v-else>
         <div class="flex items-center justify-between px-4 py-2">
           <img src="/leyyow.png" class="h-8" alt="Flowbite Logo" />
-          <DropdownMenu :items="headerActions">
+          <Dropdown :items="headerActions">
             <template #preprend>
-              <div class="flex items-center gap-2 py-2">
-                <img class="h-8 w-8 bg-brand-200 rounded-lg" />
+              <div class="flex items-center gap-2 py-2 px-3">
+                <!-- <img class="h-8 w-8 bg-brand-200 rounded-lg" /> -->
+                <span class="h-8 w-8 rounded-lg bg-brand-200 flex items-center justify-center">
+                  <Icon icon="duo-icons:user" class="text-brand-500 h-4 w-4" />
+                </span>
                 <div class="text-sm truncate">
                   <h3>Adebola Ventures</h3>
                   <p class="text-xs text-brand-300">symplytheo@gmail.com</p>
                 </div>
               </div>
             </template>
-            <template #label>
-              <AppButton icon="mdi:menu" small variant="outlined" />
+            <template #label="{ open }">
+              <AppButton :icon="open ? 'mdi:close' : 'mdi:menu'" small variant="outlined" />
             </template>
-          </DropdownMenu>
+          </Dropdown>
         </div>
         <nav class="flex w-full border-y border-brand-200">
           <component
@@ -153,7 +160,7 @@ const title = computed(() => route.meta.title);
             :key="link.title"
             :to="link.to"
             :class="[
-              'flex flex-col items-center space-y-1 visib',
+              'flex flex-col items-center gap-0.5',
               isActive(link.to).value && link.title !== 'Production'
                 ? 'text-brand-500'
                 : link.title === 'Production' && route.path === link.to
@@ -161,16 +168,16 @@ const title = computed(() => route.meta.title);
                   : 'text-brand-300',
             ]"
           >
-            <Icon :icon="link.icon" class="text-2xl" />
+            <Icon :icon="link.icon" class="h-7 w-7" />
             <span class="text-xs">{{ link.title }}</span>
           </RouterLink>
         </template>
         <!--  FAB -->
-        <DropdownMenu :items="fabMenuItems" menu-class="bottom-full -right-10">
+        <Dropdown :items="fabMenuItems" menu-class="bottom-full -right-10">
           <template #label>
-            <AppButton icon="uim:plus-square" small />
+            <AppButton icon="lets-icons:add-square-duotone" small />
           </template>
-        </DropdownMenu>
+        </Dropdown>
         <!--  -->
         <template v-if="isSalesActive">
           <RouterLink

@@ -61,7 +61,7 @@ const closeModal = () => {
             <div class="flex justify-end p-2">
               <AppButton
                 variant="outlined"
-                icon="material-symbols:close-rounded"
+                icon="solar:close-circle-bold-duotone"
                 small
                 @click="emit('update:open', false)"
               />

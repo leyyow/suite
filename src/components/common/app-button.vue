@@ -34,42 +34,45 @@ const emitClick = (event) => {
 <template>
   <button
     :class="[
-      'inline-flex justify-center gap-2 items-center rounded-lg font-medium',
+      'inline-flex justify-center items-center rounded-lg font-semibold',
       'transition-all ease-in-out duration-200 relative',
-      'focus:outline-none focus:ring-2 hover:opacity-85',
+      'focus:outline-none focus:ring-2',
       variant === 'filled' && 'bg-brand-500 text-white focus:ring-brand-500/50',
       variant === 'outlined' &&
         'border border-brand-200 text-brand-500 bg-brand-50 focus:ring-brand-500/50',
       variant === 'tonal' &&
         'border border-brand-200 text-brand-500 bg-brand-500/20 focus:ring-brand-500/50',
       variant === 'text'
-        ? 'text-brand-500 text-sm focus:ring-0 focus:outline-none'
-        : icon && !label && !small
-          ? 'h-11 w-11'
+        ? 'text-brand-500 text-sm underline focus:ring-brand-500/0 gap-1.5'
+        : icon && !label && smaller
+          ? 'h-7 w-7'
           : icon && !label && small
             ? 'h-9 w-9'
-            : smaller
-              ? 'h-8 text-sm px-4'
-              : small
-                ? 'h-10 text-sm px-4'
-                : 'h-12 text-sm px-6',
-      disabled || loading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+            : icon && !label
+              ? 'h-11 w-11'
+              : smaller
+                ? 'h-8 text-sm px-3 gap-1'
+                : small
+                  ? 'h-10 text-sm px-4 gap-2'
+                  : 'h-12 text-sm px-6 gap-2',
+      disabled || loading
+        ? 'cursor-not-allowed opacity-50 hover:disabled:opacity-50'
+        : 'cursor-pointer hover:opacity-85',
       props.class,
-      props.iconClass,
     ]"
     :disabled="disabled || loading"
     :type="type"
     @click="emitClick"
   >
     <Icon
-      v-if="loading || (icon && !label)"
+      v-if="loading || icon"
       :icon="loading ? 'eos-icons:bubble-loading' : icon"
       :class="[
-        'h-5 w-5',
-        ['outlined', 'tonal'].includes(variant) ? 'text-brand-500' : 'text-white',
+        variant == 'filled' ? 'text-white' : 'text-brand-500',
+        icon && !label && 'h-5 w-5',
         props.iconClass,
       ]"
     />
-    <slot v-else>{{ label }}</slot>
+    <slot v-if="label">{{ label }}</slot>
   </button>
 </template>

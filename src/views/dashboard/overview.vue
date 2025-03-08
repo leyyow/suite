@@ -6,7 +6,7 @@ import EmptyData from "~/components/dashboard/empty-data.vue";
 const todoList = [
   { title: "Add product", icon: "fluent:clipboard-note-16-regular", action: () => {} },
   { title: "Record orders", icon: "icon-park-solid:shopping-bag", action: () => {} },
-  { title: "Add customer", icon: "fluent:person-28-filled", action: () => {} },
+  { title: "Add customer", icon: "duo-icons:user", action: () => {} },
   { title: "Record expense", icon: "fluent:reciept-24-filled", action: () => {} },
 ];
 </script>

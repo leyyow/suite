@@ -2,7 +2,7 @@
 import { Icon } from "@iconify/vue";
 import { computed } from "vue";
 import Chip from "~/components/common/chip.vue";
-import DropdownMenu from "~/components/common/dropdown-menu.vue";
+import Dropdown from "~/components/common/dropdown.vue";
 import { formatNaira } from "~/utilities/formatNaira";
 
 defineProps({
@@ -60,11 +60,11 @@ const menuItems = computed(() => [
     <hr class="border-brand-200 my-2" />
     <div class="flex justify-between gap-1">
       <Chip label="Paid" dense />
-      <DropdownMenu v-if="showActions" :items="menuItems">
+      <Dropdown v-if="showActions" :items="menuItems">
         <template #label>
           <Icon icon="tabler:dots" class="text-lg" @click="emit('open:dropdown')" />
         </template>
-      </DropdownMenu>
+      </Dropdown>
     </div>
   </div>
 </template>

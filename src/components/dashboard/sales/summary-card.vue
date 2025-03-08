@@ -1,5 +1,5 @@
 <script setup>
-import { VsxIcon } from "vue-iconsax";
+import { Icon } from "@iconify/vue";
 
 defineProps({ items: { type: Array, default: () => [] } });
 </script>
@@ -17,12 +17,9 @@ defineProps({ items: { type: Array, default: () => [] } });
     >
       <div class="inline-flex gap-1 items-center">
         <span
-          :class="[
-            'flex justify-center items-center h-6 w-6 text-sm border border-brand-200 bg-white rounded-md',
-            item.iconColor,
-          ]"
+          class="flex justify-center items-center h-6 w-6 border border-brand-200 bg-white rounded-md"
         >
-          <VsxIcon :icon-name="item.icon" :size="18" type="bulk" />
+          <Icon :icon="item.icon" :class="item.color" />
         </span>
         <h4 class="text-sm text-brand-400">{{ item.label }}</h4>
       </div>

@@ -45,15 +45,25 @@ const chartOptions = {
 };
 
 const summaryStats = computed(() => [
-  { label: "Net sales", value: "7", icon: "BagHappy", iconColor: "text-[#f98636]" },
+  { label: "Net Sales", value: "7", icon: "solar:tag-bold-duotone", color: "text-brand-500" },
   {
-    label: "Purchase vol.",
+    label: "Purchase Vol.",
     value: formatNaira(310000),
-    icon: "ChartSquare",
-    iconColor: "text-[#2277f7]",
+    icon: "uim:graph-bar",
+    color: "text-blue-600",
   },
-  { label: "Returns", value: "0%", icon: "User", iconColor: "text-[#c212d1]" },
-  { label: "Buying pattern", value: "50%", icon: "TruckTick", iconColor: "text-brand-500" },
+  {
+    label: "Returns",
+    value: "0%",
+    icon: "jam:refresh-reverse",
+    color: "text-indigo-500",
+  },
+  {
+    label: "Buying Pattern",
+    value: "50%",
+    icon: "solar:bag-heart-bold-duotone",
+    color: "text-purple-500",
+  },
 ]);
 
 const customerDetails = computed(() => [
@@ -84,7 +94,7 @@ const showEdit = ref(false);
 
     <div class="flex flex-col items-center justify-center gap-1 mb-6">
       <span class="h-20 w-20 rounded-lg bg-brand-200 flex items-center justify-center">
-        <Icon icon="mdi:account" class="text-brand-500 h-16 w-16" />
+        <Icon icon="duo-icons:user" class="text-brand-500 h-14 w-14" />
       </span>
       <h3 class="text-lg font-semibold text-center">Adebola Johnson</h3>
     </div>

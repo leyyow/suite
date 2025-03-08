@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import SearchBar from "~/components/common/search-bar.vue";
 import AddCustomerModal from "~/components/dashboard/customers/add-customer-modal.vue";
 import CustomerCard from "~/components/dashboard/customers/customer-card.vue";
-import DeleteCustomalModal from "~/components/dashboard/customers/delete-customal-modal.vue";
+import DeleteCustomalModal from "~/components/dashboard/customers/delete-customer-modal.vue";
 import EmptyData from "~/components/dashboard/empty-data.vue";
 
 const router = useRouter();

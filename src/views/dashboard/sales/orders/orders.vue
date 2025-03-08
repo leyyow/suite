@@ -20,15 +20,20 @@ import { formatNaira } from "~/utilities/formatNaira";
 const empty = ref(false);
 
 const summaryStats = computed(() => [
-  { label: "Total orders", value: "1,000", icon: "BagHappy", iconColor: "text-[#f98636]" },
+  {
+    label: "Total orders",
+    value: "1,000",
+    icon: "icon-park-solid:shopping-bag",
+    color: "text-orange-400",
+  },
   {
     label: "Total volume",
     value: formatNaira(240000),
-    icon: "ChartSquare",
-    iconColor: "text-[#2277f7]",
+    icon: "uim:graph-bar",
+    color: "text-blue-600",
   },
-  { label: "Customers", value: 4, icon: "User", iconColor: "text-[#c212d1]" },
-  { label: "Fulfilled orders", value: 100, icon: "TruckTick", iconColor: "text-brand-500" },
+  { label: "Customers", value: 4, icon: "duo-icons:user", color: "text-purple-600" },
+  { label: "Fulfilled orders", value: 100, icon: "mdi:truck-check", color: "text-brand-500" },
 ]);
 
 const showAnalytics = ref(false);

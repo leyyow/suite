@@ -4,7 +4,7 @@ import { computed, ref } from "vue";
 import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
 import Chip from "~/components/common/chip.vue";
-import DropdownMenu from "~/components/common/dropdown-menu.vue";
+import Dropdown from "~/components/common/dropdown.vue";
 import SearchBar from "~/components/common/search-bar.vue";
 import InviteUserModal from "~/components/dashboard/settings/invite-user-modal.vue";
 
@@ -61,11 +61,11 @@ const showInvite = ref(false);
           </div>
           <div class="text-sm text-center">Active</div>
           <div class="text-right">
-            <DropdownMenu :items="menuItems">
+            <Dropdown :items="menuItems">
               <template #label>
                 <Icon icon="tabler:dots" class="text-lg" />
               </template>
-            </DropdownMenu>
+            </Dropdown>
           </div>
         </div>
       </section>

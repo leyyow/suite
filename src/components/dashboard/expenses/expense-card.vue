@@ -2,7 +2,7 @@
 import { Icon } from "@iconify/vue";
 import { computed } from "vue";
 import Chip from "~/components/common/chip.vue";
-import DropdownMenu from "~/components/common/dropdown-menu.vue";
+import Dropdown from "~/components/common/dropdown.vue";
 import { formatNaira } from "~/utilities/formatNaira";
 
 defineProps({ expense: { type: Object, default: () => ({}) } });
@@ -37,11 +37,11 @@ const menuItems = computed(() => [
         <Chip :label="expense.channel" dense />
         <Chip :label="expense.category_name" dense class="max-w-40 truncate" />
       </div>
-      <DropdownMenu :items="menuItems">
+      <Dropdown :items="menuItems">
         <template #label>
           <Icon icon="tabler:dots" class="text-lg" @click="emit('open:dropdown')" />
         </template>
-      </DropdownMenu>
+      </Dropdown>
     </div>
   </div>
 </template>
