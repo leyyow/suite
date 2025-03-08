@@ -3,7 +3,7 @@ import { Icon } from "@iconify/vue";
 import { ref, computed } from "vue";
 
 const props = defineProps({
-  modelValue: String,
+  modelValue: String || Number,
   type: { type: String, default: "text" },
   placeholder: String,
   label: String,

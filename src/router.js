@@ -89,6 +89,21 @@ const routes = [
             component: () => import("./views/dashboard/sales/inventory/products.vue"),
             meta: { title: "Inventory" },
           },
+          {
+            path: "inventory/:id",
+            component: () => import("./views/dashboard/sales/inventory/single.vue"),
+            meta: { title: "Product Details", withBackButton: true },
+          },
+          {
+            path: "inventory/create",
+            component: () => import("./views/dashboard/sales/inventory/create.vue"),
+            meta: { title: "Add New Product", withBackButton: true },
+          },
+          {
+            path: "inventory/edit",
+            component: () => import("./views/dashboard/sales/inventory/create.vue"),
+            meta: { title: "Edit Product", withBackButton: true },
+          },
         ],
       },
       {
