@@ -2,8 +2,13 @@
 import { Icon } from "@iconify/vue";
 import AppButton from "~/components/common/app-button.vue";
 import Modal from "~/components/common/modal.vue";
+import CustomerCard from "./customer-card.vue";
 
-defineProps({ modelValue: Boolean, loading: Boolean });
+defineProps({
+  modelValue: Boolean,
+  loading: Boolean,
+  customer: { type: Object, default: () => ({}) },
+});
 const emit = defineEmits(["update:modelValue", "delete"]);
 </script>
 
@@ -16,6 +21,9 @@ const emit = defineEmits(["update:modelValue", "delete"]);
         This customer will be entirely removed from the list, and all purchase history will be
         erased.
       </p>
+
+      <CustomerCard :customer="customer" :show-actions="false" />
+
       <AppButton
         label="Delete Customer"
         :loading="loading"

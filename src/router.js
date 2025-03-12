@@ -149,9 +149,8 @@ const router = createRouter({
 router.beforeEach((to, _, next) => {
   const authStore = useAuthStore();
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({
+    return next({
       path: "/auth/signin",
-      // save the location we were at to come back later
       query: { redirect: to.fullPath },
     });
   }

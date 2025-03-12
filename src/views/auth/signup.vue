@@ -7,6 +7,7 @@ import SelectInput from "~/components/common/select-input.vue";
 import TextInput from "~/components/common/text-input.vue";
 import { useRegisterApi } from "~/composables/api/auth";
 import { useAuthStore } from "~/stores/auth";
+import { useSalesStore } from "~/stores/sales";
 
 const form = ref({
   email: "",
@@ -26,11 +27,15 @@ const industryOptions = [
 
 const { mutate: signupFn, loading } = useRegisterApi();
 const authStore = useAuthStore();
+const salesStore = useSalesStore();
 const router = useRouter();
 
 const onSubmit = () => {
   signupFn({ ...form.value, business_type: form.value.business_type.value }).then((data) => {
-    authStore.setAuth(data.access, data.refresh, data);
+    const { customers, inventory, access, refresh, ...user } = data;
+    salesStore.setCustomers(customers);
+    salesStore.setProducts(inventory);
+    authStore.setAuth(access, refresh, user);
     toast.success("Registration successful");
     router.push("/dashboard/expenses");
   });

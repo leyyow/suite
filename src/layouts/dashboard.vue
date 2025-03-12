@@ -9,14 +9,22 @@ import AddCustomerModal from "~/components/dashboard/customers/add-customer-moda
 import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.vue";
 import LogoutModal from "~/components/others/logout-modal.vue";
 import { useCreateExpense, useGetExpenses } from "~/composables/api/expense";
+import { useCreateCustomer } from "~/composables/api/sales/customers";
+import { useAuthStore } from "~/stores/auth";
+import { useSalesStore } from "~/stores/sales";
+
+const route = useRoute();
+const router = useRouter();
+const salesStore = useSalesStore();
+const { user } = useAuthStore();
+
+const showExpenseModal = ref(false);
+const showCustomer = ref(false);
+const signoutModal = ref(false);
 
 const salesLinks = computed(() => [
   { title: "Production", icon: "duo-icons:building", to: "/dashboard/sales" },
-  {
-    title: "Inventory",
-    icon: "solar:shop-bold-duotone",
-    to: "/dashboard/sales/inventory",
-  },
+  { title: "Inventory", icon: "solar:shop-bold-duotone", to: "/dashboard/sales/inventory" },
   { title: "Orders", icon: "solar:bag-smile-bold-duotone", to: "/dashboard/sales/orders" },
   { title: "Customers", icon: "duo-icons:user", to: "/dashboard/sales/customers" },
 ]);
@@ -27,42 +35,6 @@ const headerLinks = computed(() => [
   { title: "Expenses", to: "/dashboard/expenses" },
   { title: "Growth 🚧", to: "/dashboard/growth" },
 ]);
-
-const action = () => toast("Coming soon");
-const fabMenuItems = [
-  {
-    label: "Product",
-    icon: "uim:box",
-    action: () => router.push("/dashboard/sales/inventory/create"),
-  },
-  { label: "Customer", icon: "duo-icons:user", action: () => (showCustomer.value = true) },
-  { label: "Order", icon: "solar:bag-smile-bold-duotone", action },
-  {
-    label: "Expense",
-    icon: "fluent-emoji-high-contrast:receipt",
-    iconClass: "rotate-180",
-    action: () => (showExpenseModal.value = true),
-  },
-];
-
-const route = useRoute();
-const router = useRouter();
-const showExpenseModal = ref(false);
-const showCustomer = ref(false);
-const signoutModal = ref(false);
-
-const isActive = (path) => computed(() => route.path.startsWith(path));
-const isSalesActive = computed(() => route.path.startsWith("/dashboard/sales"));
-
-const { refetch } = useGetExpenses({}, { skip: true });
-const { mutate: createExpense, loading: loadingExpense } = useCreateExpense();
-const onAddExpense = (payload) => {
-  createExpense(payload).then(() => {
-    toast.success("Expenses added successfully");
-    showExpenseModal.value = false;
-    refetch();
-  });
-};
 
 const headerActions = computed(() => [
   { label: "Profile", icon: "duo-icons:user", action },
@@ -83,8 +55,49 @@ const headerActions = computed(() => [
   },
 ]);
 
+const isActive = (path) => computed(() => route.path.startsWith(path));
+const isSalesActive = computed(() => route.path.startsWith("/dashboard/sales"));
 const withBackButton = computed(() => route.meta.withBackButton);
 const title = computed(() => route.meta.title);
+
+// Expense Management
+const { refetch } = useGetExpenses({}, { skip: true });
+const { mutate: createExpense, loading: loadingExpense } = useCreateExpense();
+const onAddExpense = (payload) => {
+  createExpense(payload).then(() => {
+    toast.success("Expenses added successfully");
+    showExpenseModal.value = false;
+    refetch();
+  });
+};
+
+// Customer Management
+const { mutate: createCustomer, loading: isCreatingCustomer } = useCreateCustomer();
+const handleAddCustomer = (payload) => {
+  createCustomer(payload).then((res) => {
+    toast.success("Customer added successfully");
+    salesStore.addCustomer(res.customer);
+    showCustomer.value = false;
+  });
+};
+
+// Floating Action Button Menu
+const action = () => toast("Coming soon");
+const fabMenuItems = [
+  {
+    label: "Product",
+    icon: "uim:box",
+    action: () => router.push("/dashboard/sales/inventory/create"),
+  },
+  { label: "Customer", icon: "duo-icons:user", action: () => (showCustomer.value = true) },
+  { label: "Order", icon: "solar:bag-smile-bold-duotone", action },
+  {
+    label: "Expense",
+    icon: "fluent-emoji-high-contrast:receipt",
+    iconClass: "rotate-180",
+    action: () => (showExpenseModal.value = true),
+  },
+];
 </script>
 
 <template>
@@ -111,8 +124,8 @@ const title = computed(() => route.meta.title);
                   <Icon icon="duo-icons:user" class="text-brand-500 h-4 w-4" />
                 </span>
                 <div class="text-sm truncate">
-                  <h3>Adebola Ventures</h3>
-                  <p class="text-xs text-brand-300">symplytheo@gmail.com</p>
+                  <h3>{{ user?.store.store_name }}</h3>
+                  <p class="text-xs text-brand-300">{{ user?.store.email }}</p>
                 </div>
               </div>
             </template>
@@ -202,7 +215,11 @@ const title = computed(() => route.meta.title);
 
     <!--  -->
     <AddExpenseModal v-model="showExpenseModal" :loading="loadingExpense" @submit="onAddExpense" />
-    <AddCustomerModal v-model="showCustomer" />
+    <AddCustomerModal
+      v-model="showCustomer"
+      :loading="isCreatingCustomer"
+      @submit="handleAddCustomer"
+    />
     <!--  -->
     <LogoutModal v-model="signoutModal" />
   </div>
