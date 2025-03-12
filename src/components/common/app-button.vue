@@ -73,6 +73,8 @@ const emitClick = (event) => {
         props.iconClass,
       ]"
     />
-    <slot v-if="label">{{ label }}</slot>
+    <slot v-if="!loading">
+      <span v-if="label">{{ label }}</span>
+    </slot>
   </button>
 </template>

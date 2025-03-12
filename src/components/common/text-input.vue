@@ -9,8 +9,8 @@ const props = defineProps({
   label: String,
   required: Boolean,
   dense: Boolean,
-  min: Number,
-  max: Number,
+  min: String || Number,
+  max: String || Number,
 });
 
 const emit = defineEmits(["update:modelValue", "enter"]);
