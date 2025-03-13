@@ -20,7 +20,7 @@ const onSubmit = () => {
   loginFn(form.value).then((data) => {
     const { customers, inventory, access, refresh, ...user } = data;
     salesStore.setCustomers(customers?.reverse());
-    salesStore.setProducts(inventory);
+    salesStore.setProducts(inventory?.reverse());
     authStore.setAuth(access, refresh, user);
     toast.success("Login successful");
     router.push(route.query.redirect || "/dashboard/expenses");
