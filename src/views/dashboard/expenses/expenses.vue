@@ -189,7 +189,11 @@ const onClearFilters = () => {
   sortedParams.value = "";
 };
 
-watch(expError, onClearFilters);
+watch(expError, () => {
+  if (filteredParams.value || sortedParams.value) {
+    onClearFilters();
+  }
+});
 watch(
   () => expenseStore.latest,
   () => {

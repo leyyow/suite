@@ -43,6 +43,10 @@ export const useSalesStore = defineStore(
       products.value.unshift(product);
     };
 
+    const getProductById = (id) => {
+      return products.value.find((prod) => prod.id === id) || null;
+    };
+
     return {
       customers,
       totalCustomers,
@@ -56,6 +60,7 @@ export const useSalesStore = defineStore(
       totalProducts,
       setProducts,
       addProduct,
+      getProductById,
     };
   },
   { persist: true },

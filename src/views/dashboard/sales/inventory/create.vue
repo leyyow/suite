@@ -1,6 +1,8 @@
 <script setup>
 import { Icon } from "@iconify/vue";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { toast } from "vue3-toastify";
 import AlertBox from "~/components/common/alert-box.vue";
 import AppButton from "~/components/common/app-button.vue";
 import Chip from "~/components/common/chip.vue";
@@ -8,22 +10,65 @@ import StepperWizard from "~/components/common/stepper-wizard.vue";
 import TagsInput from "~/components/common/tags-input.vue";
 import TextAreaInput from "~/components/common/text-area-input.vue";
 import TextInput from "~/components/common/text-input.vue";
+import { useCreateProduct, useUpdateProduct } from "~/composables/api/sales/inventory";
+import { useSalesStore } from "~/stores/sales";
 import { formatNaira } from "~/utilities/formatNaira";
 
-const steps = [1, 2, 3, 4];
-const currentStep = ref(0);
+const route = useRoute();
+const salesStore = useSalesStore();
+
+// Determine if we are editing an existing product
+const selectedProduct = computed(() =>
+  route.query.id ? salesStore.getProductById(Number(route.query.id)) : null,
+);
+
+const isEditing = computed(() => route.path.includes("edit"));
 
 const form = ref({
   name: "",
   price: "",
   quantity: "",
-  sku: "",
+  SKU: "",
   description: "",
   image: {},
   variants: [{ name: "", values: [] }],
 });
 
 const imagePreview = ref({});
+
+watch(
+  selectedProduct,
+  (val) => {
+    if (val) {
+      const variants = [];
+      if (val.has_variant) {
+        const variantNames = val.variants.split(",").filter(Boolean);
+        variantNames.forEach((el, i) => {
+          variants.push({
+            name: el,
+            values: val[`options${i + 1}`]?.split(",").filter(Boolean) || [],
+          });
+        });
+      }
+
+      form.value = {
+        name: val.product_name || "",
+        price: val.price || "",
+        quantity: String(val.total_stock),
+        SKU: val.SKU || "",
+        description: val.description || "",
+        image: val.image || {},
+        variants: val.has_variant ? variants : [{ name: "", values: [] }],
+      };
+
+      if (val.image) imagePreview.value = val.image;
+    }
+  },
+  { immediate: true },
+);
+
+const steps = [1, 2, 3, 4];
+const currentStep = ref(0);
 
 const addVariant = () => {
   form.value.variants.push({ name: "", values: [] });
@@ -52,7 +97,7 @@ const getCombinations = (arrays) => {
 // Computed property to generate variant combinations dynamically
 const variantCombinations = computed(() => {
   const valuesArray = form.value.variants.map((v) => v.values);
-  if (valuesArray.some((arr) => arr.length === 0)) return []; // Handle empty variants
+  if (valuesArray.some((arr) => arr.length === 0)) return [];
   return getCombinations(valuesArray).map((combo) => ({
     name: combo.join(" / "),
     quantity: 0,
@@ -60,7 +105,24 @@ const variantCombinations = computed(() => {
   }));
 });
 
-const onSubmitProduct = () => {};
+const { mutate: createProduct, loading: isCreating } = useCreateProduct();
+const { mutate: updateProduct, loading: isUpdating } = useUpdateProduct();
+
+const onSubmitProduct = () => {
+  if (isEditing.value) {
+    updateProduct({ id: route.query.id, payload: form.value }).then((res) => {
+      console.log("res", res);
+      toast.success("Product UPDATED successfully");
+      salesStore.updateProduct({ id: Number(route.query.id), ...form.value });
+    });
+  } else {
+    createProduct({ id: route.query.id, payload: form.value }).then((res) => {
+      console.log("RES", res);
+      toast.success("Product ADDED successfully");
+      salesStore.addProduct(res);
+    });
+  }
+};
 </script>
 
 <template>
@@ -132,7 +194,7 @@ const onSubmitProduct = () => {};
               placeholder="e.g. 50"
               required
             />
-            <TextInput v-model="form.sku" label="SKU (Optional)" placeholder="e.g. ABC123" />
+            <TextInput v-model="form.SKU" label="SKU" placeholder="e.g. ABC123" />
             <TextAreaInput
               v-model="form.description"
               label="Description"
@@ -147,7 +209,7 @@ const onSubmitProduct = () => {};
 
             <AppButton
               type="submit"
-              label="Next: Add Variants"
+              :label="isEditing ? 'Edit Variants' : 'Next: Add Variants'"
               icon="bi:arrow-right"
               class="w-full flex-row-reverse gap-4"
             />
@@ -195,7 +257,7 @@ const onSubmitProduct = () => {};
 
         <!-- Pricing & Inventory Management -->
         <div v-if="step === 2">
-          <div class="mb-6">
+          <div v-if="variantCombinations.length" class="mb-6">
             <div class="grid grid-cols-8 text-sm bg-brand-50 font-medium">
               <div class="px-2 py-2 col-span-3">Variant</div>
               <div class="px-2 py-2 col-span-2">Quantity</div>
@@ -217,11 +279,20 @@ const onSubmitProduct = () => {};
             </div>
           </div>
 
+          <div v-else class="text-center py-4 text-sm mb-4">
+            No variant selected for this product
+          </div>
+
           <AlertBox label="Next Step" text="Review all product details before submission." />
 
           <div class="flex gap-2 mt-6">
             <AppButton label="Back" variant="outlined" class="w-1/3" @click="onPrev" />
-            <AppButton type="submit" label="Review" class="w-2/3" @click="onNext" />
+            <AppButton
+              type="submit"
+              :label="'Review' + (isEditing ? ' Changes' : '')"
+              class="w-2/3"
+              @click="onNext"
+            />
           </div>
         </div>
 
@@ -244,51 +315,61 @@ const onSubmitProduct = () => {};
                 ([key]) => !['image', 'variants'].includes(key),
               )"
               :key="key"
-              class="flex justify-between gap-1 py-1.5 text-sm"
-              :class="key === 'description' ? 'flex-col' : 'flex-row'"
+              class="flex justify-between gap-2 py-1.5 text-sm"
+              :class="key === 'description' ? 'items-start' : 'items-center'"
             >
               <div class="inline-flex gap-2 text-brand-400 items-center capitalize">
                 <Icon icon="uim:box" class="h-5 w-5 text-brand-300" />
                 <p>{{ key }}</p>
               </div>
-              <span
-                class="font-medium"
-                :class="key === 'description' ? 'text-left pl-7' : 'text-right'"
-                >{{ key === "price" ? formatNaira(value) : value }}</span
-              >
+              <span class="font-medium text-right">
+                {{ key === "price" ? formatNaira(value) : value || "--" }}
+              </span>
             </div>
 
             <div class="bg-brand-50 border border-brand-200 rounded-lg p-2.5 px-3 mt-4">
               <h4 class="text-sm mb-1 font-medium">
                 Product Variants ({{ variantCombinations.length }})
               </h4>
-              <p class="text-brand-600 text-sm capitalize mb-1 flex flex-wrap gap-1">
-                <Chip v-for="x in form.variants" :key="x" :label="x.name" dense />
-              </p>
 
-              <div class="grid grid-cols-8 text-sm bg-brand-100 font-medium mt-2">
-                <div class="px-2 py-2 col-span-3">Name</div>
-                <div class="px-2 py-2 col-span-2">Quantity</div>
-                <div class="px-2 py-2 col-span-3">Price</div>
-              </div>
-              <div
-                v-for="(combo, index) in variantCombinations"
-                :key="index"
-                class="grid grid-cols-8 border-b border-brand-200 last:border-0 text-sm items-center"
-              >
-                <div class="px-2 py-2 col-span-3 text-sm capitalize">{{ combo.name }}</div>
-                <div class="px-2 py-2 col-span-2">
-                  {{ combo.quantity }}
+              <template v-if="variantCombinations.length">
+                <p class="text-brand-600 text-sm capitalize mb-1 flex flex-wrap gap-1">
+                  <Chip v-for="x in form.variants" :key="x" :label="x.name" dense />
+                </p>
+
+                <div class="grid grid-cols-8 text-sm bg-brand-100 font-medium mt-2">
+                  <div class="px-2 py-2 col-span-3">Name</div>
+                  <div class="px-2 py-2 col-span-2">Quantity</div>
+                  <div class="px-2 py-2 col-span-3">Price</div>
                 </div>
-                <div class="px-2 py-2 col-span-3">
-                  {{ formatNaira(combo.price) }}
+                <div
+                  v-for="(combo, index) in variantCombinations"
+                  :key="index"
+                  class="grid grid-cols-8 border-b border-brand-200 last:border-0 text-sm items-center"
+                >
+                  <div class="px-2 py-2 col-span-3 text-sm capitalize">{{ combo.name }}</div>
+                  <div class="px-2 py-2 col-span-2">
+                    {{ combo.quantity }}
+                  </div>
+                  <div class="px-2 py-2 col-span-3">
+                    {{ formatNaira(combo.price) }}
+                  </div>
                 </div>
+              </template>
+
+              <div v-else class="text-center py-4 text-sm mb-4">
+                No variant selected for this product
               </div>
             </div>
           </div>
           <div class="flex gap-2 mt-4">
             <AppButton label="Back" variant="outlined" class="w-1/3" @click="onPrev" />
-            <AppButton label="Submit Product" class="w-2/3" @click="onSubmitProduct" />
+            <AppButton
+              :label="isEditing ? 'Save Changes' : 'Submit Product'"
+              class="w-2/3"
+              :loading="isCreating || isUpdating"
+              @click="onSubmitProduct"
+            />
           </div>
         </div>
       </template>

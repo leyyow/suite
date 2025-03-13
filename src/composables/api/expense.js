@@ -37,16 +37,16 @@ export function useDeleteExpense() {
   }));
 }
 
-export function useGetExpenseCategories() {
-  return useApiQuery("/expenses/categories/");
+export function useGetExpenseCategories({ skip = false }) {
+  return useApiQuery("/expenses/categories/", {}, skip);
 }
 
-export function useGetExpenseSubCategories() {
-  return useApiQuery("/expenses/subcategories/");
+export function useGetExpenseSubCategories({ skip = false }) {
+  return useApiQuery("/expenses/subcategories/", {}, skip);
 }
 
-export function useGetExpenseRecipients() {
-  return useApiQuery("/expenses/recipients/");
+export function useGetExpenseRecipients({ skip = false }) {
+  return useApiQuery("/expenses/recipients/", {}, skip);
 }
 
 export function useCreateRecipient() {

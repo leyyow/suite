@@ -1,4 +1,4 @@
-import { useApiMutation, useApiQuery } from "./api";
+import { useApiMutation, useApiQuery } from "../api";
 
 export function useGetInventory(params = {}) {
   return useApiQuery("/inventory/product/", params);

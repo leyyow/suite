@@ -18,6 +18,9 @@ api.interceptors.request.use(
     if (authStore.accessToken) {
       config.headers.Authorization = `Bearer ${authStore.accessToken}`;
     }
+    // storeId to the headers
+    const storeID = authStore.user?.store?.id;
+    if (storeID) config.headers.store_id = storeID;
     return config;
   },
   (error) => Promise.reject(error),
