@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import AppButton from "~/components/common/app-button.vue";
 import TextInput from "~/components/common/text-input.vue";
@@ -9,6 +9,7 @@ import { useAuthStore } from "~/stores/auth";
 import { useSalesStore } from "~/stores/sales";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const salesStore = useSalesStore();
 const { mutate: loginFn, loading } = useLoginApi();
@@ -22,7 +23,7 @@ const onSubmit = () => {
     salesStore.setProducts(inventory);
     authStore.setAuth(access, refresh, user);
     toast.success("Login successful");
-    router.push("/dashboard/expenses");
+    router.push(route.query.redirect || "/dashboard/expenses");
   });
 };
 </script>
