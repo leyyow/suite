@@ -34,7 +34,7 @@ const form = ref({
   amount: "",
   recipient: { label: "", value: "" },
   date: new Date().toISOString().split("T")[0],
-  channel: "",
+  channel: "cash",
   description: "",
 });
 const newRecipient = ref("");
@@ -85,7 +85,7 @@ watch(
         amount: "",
         recipient: { label: "", value: "" },
         date: new Date().toISOString().split("T")[0],
-        channel: "",
+        channel: "cash",
         description: "",
       };
     }

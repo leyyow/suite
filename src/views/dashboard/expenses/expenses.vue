@@ -14,19 +14,13 @@ import ExpenseCard from "~/components/dashboard/expenses/expense-card.vue";
 import FilterExpenseModal from "~/components/dashboard/expenses/filter-expense-modal.vue";
 import SortExpenseModal from "~/components/dashboard/expenses/sort-expense-modal.vue";
 import {
-  useCreateExpense,
   useDeleteExpense,
   useGetExpenses,
   useGetExpenseSummary,
   useUpdateExpense,
 } from "~/composables/api/expense";
+import { useExpenseStore } from "~/stores/expense";
 import { formatNaira } from "~/utilities/formatNaira";
-
-const now = new Date();
-const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
-const thisMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
-const thisYearStart = new Date(now.getFullYear(), 0, 1).toISOString().split("T")[0];
-const thisYearEnd = new Date(now.getFullYear(), 11, 31).toISOString().split("T")[0];
 
 const summaryPeriodOptions = computed(() => [
   { label: "Today", value: "today" },
@@ -36,15 +30,18 @@ const summaryPeriodOptions = computed(() => [
   { label: "All Time", value: "all" },
 ]);
 
-// Default range set to "This Month" - second option
-const range = ref(summaryPeriodOptions.value[2]);
-
 const router = useRouter();
+const expenseStore = useExpenseStore();
+
+const range = computed({
+  get: () => expenseStore.range,
+  set: (val) => expenseStore.setRange(val),
+});
+
 const showModal = ref(false);
 const showFilterModal = ref(false);
 const showSortModal = ref(false);
 const showDeleteModal = ref(false);
-const isEditing = ref(false);
 const sortedParams = ref("");
 const filteredParams = ref("");
 
@@ -79,6 +76,12 @@ const nonEmptyFilters = computed(() => {
   return Object.fromEntries(Object.entries(filters.value).filter(([, value]) => value !== ""));
 });
 
+const [dYear, dMonth] = [new Date().getFullYear(), new Date().getMonth() + 1];
+const thisMonthStart = dYear + "-" + `${dMonth}`.padStart(2, "0") + "-01";
+const thisMonthEnd = new Date(dYear, dMonth, 0).toISOString().split("T")[0];
+const thisYearStart = dYear + "-01-01";
+const thisYearEnd = dYear + "-12-31";
+
 const period = computed(() => {
   if (range.value.value === "all") {
     return { period: "range", start_date: "2000-01-01", end_date: thisYearEnd };
@@ -92,10 +95,7 @@ const period = computed(() => {
   return { period: range.value.value };
 });
 
-const combinedFilters = computed(() => ({
-  ...nonEmptyFilters.value,
-  ...period.value, // Ensure period is included
-}));
+const combinedFilters = computed(() => ({ ...nonEmptyFilters.value, ...period.value }));
 
 const {
   data: allExpenses,
@@ -103,36 +103,31 @@ const {
   error: expError,
   refetch: fetchExpenses,
 } = useGetExpenses(combinedFilters);
-
 const { data: expSummary, loading: loadingSummary } = useGetExpenseSummary(combinedFilters);
 
-const { mutate: createExpense, loading: loadingAdd } = useCreateExpense();
-const addExpense = async (payload) => {
-  try {
-    await createExpense(payload);
-    toast.success("Expenses added successfully");
-    showModal.value = false;
-    await fetchExpenses();
-  } catch (err) {
-    console.log("Error adding expense:", err);
-  }
-};
+const formattedExpenseList = computed(() => {
+  if (!allExpenses.value?.results) return [];
+  // Find the latest expense (not more than 1 min ago)
+  const latestExpense = allExpenses.value.results.find(
+    (exp) =>
+      exp.id === expenseStore.latest.id && expenseStore.latest.timestamp > Date.now() - 60 * 1000,
+  );
+  if (!latestExpense) return allExpenses.value.results;
+  // Move the latest expense to the top
+  const otherExpenses = allExpenses.value.results.filter((x) => x.id !== latestExpense.id);
+  return [latestExpense, ...otherExpenses];
+});
 
 const { mutate: updateExpense, loading: loadingEdit } = useUpdateExpense();
-const editExpense = async (payload) => {
+const onEditExpense = async (payload) => {
   try {
     await updateExpense({ id: activeItem.value?.id, payload });
     toast.success("Expenses UPDATED successfully");
     showModal.value = false;
-    await fetchExpenses();
+    fetchExpenses();
   } catch (err) {
     console.log("Error adding expense:", err);
   }
-};
-
-const handleSubmit = (v) => {
-  if (isEditing.value) editExpense(v);
-  else addExpense(v);
 };
 
 const { mutate: deleteExpense, loading: loadingDelete } = useDeleteExpense();
@@ -141,7 +136,7 @@ const handleDelete = async () => {
     await deleteExpense(activeItem.value.id);
     toast.success("Expenses DELETED successfully");
     showDeleteModal.value = false;
-    await fetchExpenses();
+    fetchExpenses();
   } catch (err) {
     console.log("Error adding expense:", err);
   }
@@ -195,6 +190,14 @@ const onClearFilters = () => {
 };
 
 watch(expError, onClearFilters);
+watch(
+  () => expenseStore.latest,
+  () => {
+    expenseStore.resetRange();
+    fetchExpenses();
+  },
+  { deep: true },
+);
 </script>
 
 <template>
@@ -298,16 +301,11 @@ watch(expError, onClearFilters);
         <template v-else>
           <div class="space-y-4">
             <ExpenseCard
-              v-for="exp in allExpenses?.results"
+              v-for="exp in formattedExpenseList"
               :key="exp.id"
               :expense="exp"
               @view="router.push(`/dashboard/expenses/${exp.id}`)"
-              @edit="
-                () => {
-                  isEditing = true;
-                  showModal = true;
-                }
-              "
+              @edit="showModal = true"
               @delete="showDeleteModal = true"
               @open:dropdown="activeItem = exp"
             />
@@ -327,10 +325,10 @@ watch(expError, onClearFilters);
     <!--  -->
     <AddExpenseModal
       v-model="showModal"
-      :loading="loadingAdd || loadingEdit"
+      :loading="loadingEdit"
       :item="activeItem"
-      :edit="isEditing"
-      @submit="handleSubmit"
+      :edit="showModal"
+      @submit="onEditExpense"
     />
     <DeleteExpenseModal v-model="showDeleteModal" :loading="loadingDelete" @delete="handleDelete" />
     <FilterExpenseModal

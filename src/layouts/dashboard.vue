@@ -8,15 +8,17 @@ import Dropdown from "~/components/common/dropdown.vue";
 import AddCustomerModal from "~/components/dashboard/customers/add-customer-modal.vue";
 import AddExpenseModal from "~/components/dashboard/expenses/add-expense-modal.vue";
 import LogoutModal from "~/components/others/logout-modal.vue";
-import { useCreateExpense, useGetExpenses } from "~/composables/api/expense";
+import { useCreateExpense } from "~/composables/api/expense";
 import { useCreateCustomer } from "~/composables/api/sales/customers";
 import { useAuthStore } from "~/stores/auth";
+import { useExpenseStore } from "~/stores/expense";
 import { useSalesStore } from "~/stores/sales";
 
 const route = useRoute();
 const router = useRouter();
 const salesStore = useSalesStore();
 const { user } = useAuthStore();
+const expenseStore = useExpenseStore();
 
 const showExpenseModal = ref(false);
 const showCustomer = ref(false);
@@ -61,13 +63,12 @@ const withBackButton = computed(() => route.meta.withBackButton);
 const title = computed(() => route.meta.title);
 
 // Expense Management
-const { refetch } = useGetExpenses({}, { skip: true });
 const { mutate: createExpense, loading: loadingExpense } = useCreateExpense();
 const onAddExpense = (payload) => {
-  createExpense(payload).then(() => {
-    toast.success("Expenses added successfully");
+  createExpense(payload).then((data) => {
+    toast.success("Expenses ADDED successfully");
     showExpenseModal.value = false;
-    refetch();
+    expenseStore.setLatest({ id: data.id, timestamp: Date.now() });
   });
 };
 
@@ -75,8 +76,8 @@ const onAddExpense = (payload) => {
 const { mutate: createCustomer, loading: isCreatingCustomer } = useCreateCustomer();
 const handleAddCustomer = (payload) => {
   createCustomer(payload).then((res) => {
-    toast.success("Customer added successfully");
-    salesStore.addCustomer(res.customer);
+    toast.success("Customer ADDED successfully");
+    salesStore.addCustomer({ ...res.customer, newest: true, timestamp: Date.now() });
     showCustomer.value = false;
   });
 };
@@ -93,8 +94,7 @@ const fabMenuItems = [
   { label: "Order", icon: "solar:bag-smile-bold-duotone", action },
   {
     label: "Expense",
-    icon: "fluent-emoji-high-contrast:receipt",
-    iconClass: "rotate-180",
+    icon: "lets-icons:paper-duotone",
     action: () => (showExpenseModal.value = true),
   },
 ];

@@ -24,11 +24,11 @@ const { data: expense, loading, refetch } = useGetSingleExpense(route.params.id)
 
 const { mutate: updateExpense, loading: loadingEdit } = useUpdateExpense();
 const editExpense = (payload) => {
-  updateExpense({ id: expense.value?.id, payload }).then(async () => {
+  updateExpense({ id: expense.value?.id, payload }).then(() => {
     toast.success("Expenses UPDATED successfully");
     showEditModal.value = false;
     showReceiptModal.value = false;
-    await refetch();
+    refetch();
   });
 };
 
@@ -62,11 +62,7 @@ const onClickReceipt = () => {
     </button>
     <div class="flex items-center gap-2 border-b border-brand-200 pb-2">
       <img v-if="expense?.receipt" :src="expense?.receipt" class="h-14 w-14 rounded-lg" />
-      <Icon
-        v-else
-        icon="fluent-emoji-high-contrast:receipt"
-        class="h-10 w-10 text-brand-300 rotate-180"
-      />
+      <Icon v-else icon="lets-icons:paper-duotone" class="h-10 w-10 text-brand-300" />
       <h2 class="flex-1 text-base font-medium">{{ expense?.name }}</h2>
       <Chip
         :label="expense?.receipt ? 'View receipt' : 'Add receipt'"

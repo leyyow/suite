@@ -58,7 +58,5 @@ export const useSalesStore = defineStore(
       addProduct,
     };
   },
-  {
-    persist: true,
-  },
+  { persist: true },
 );

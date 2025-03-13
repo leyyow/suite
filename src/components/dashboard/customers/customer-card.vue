@@ -4,7 +4,7 @@ import { computed } from "vue";
 import Chip from "~/components/common/chip.vue";
 import Dropdown from "~/components/common/dropdown.vue";
 
-defineProps({
+const props = defineProps({
   expense: { type: Object, default: () => ({}) },
   showActions: { type: Boolean, default: true },
   customer: { type: Object, default: () => ({}) },
@@ -22,10 +22,17 @@ const menuItems = computed(() => [
     action: () => emit("delete"),
   },
 ]);
+
+const isLatest = computed(
+  () => props.customer?.newest && props.customer?.timestamp > Date.now() - 60 * 1000,
+);
 </script>
 
 <template>
-  <div class="w-full bg-brand-50 border border-brand-200 px-2 py-2 rounded-xl cursor-pointer">
+  <div
+    class="w-full bg-brand-50 border border-brand-200 px-2 py-2 rounded-xl cursor-pointer"
+    :class="{ relative: isLatest }"
+  >
     <div class="flex items-center gap-2.5 text-left">
       <!-- <img class="h-12 w-12 bg-brand-200 rounded-lg" /> -->
       <span class="h-12 w-12 rounded-lg bg-brand-200 flex items-center justify-center">
@@ -53,5 +60,11 @@ const menuItems = computed(() => [
         />
       </div>
     </div>
+
+    <Icon
+      v-if="showActions && isLatest"
+      icon="clarity:new-solid"
+      class="text-purple-600 absolute top-0 left-0.5 text-2xl animate-ping"
+    />
   </div>
 </template>

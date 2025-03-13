@@ -83,9 +83,10 @@ export function useApiQuery(endpoint, params = {}, skip = false) {
   const data = ref(null);
   const error = ref(null);
   const loading = ref(false);
+  const skipRef = ref(skip);
 
   const fetchData = async () => {
-    if (skip) return;
+    if (skipRef.value) return;
     loading.value = true;
     error.value = null;
 
@@ -105,7 +106,15 @@ export function useApiQuery(endpoint, params = {}, skip = false) {
   watchEffect(fetchData); // Auto-fetch when component mounts
   watch(() => params, fetchData, { deep: true }); // Refetch when params change
 
-  return { data, error, loading, refetch: fetchData };
+  return {
+    data,
+    error,
+    loading,
+    refetch: () => {
+      skipRef.value = false; // ✅ Enable fetching
+      fetchData();
+    },
+  };
 }
 
 // Reusable API Mutation (POST, PUT, PATCH, DELETE)

@@ -62,6 +62,7 @@ const closeModal = () => {
               <AppButton
                 variant="outlined"
                 icon="solar:close-circle-bold-duotone"
+                icon-class="h-8 w-8"
                 small
                 @click="emit('update:open', false)"
               />
