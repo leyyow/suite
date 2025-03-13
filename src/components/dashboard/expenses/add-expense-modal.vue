@@ -24,8 +24,8 @@ const props = defineProps({
 
 const { edit, item } = toRefs(props);
 const emit = defineEmits(["update:modelValue", "submit"]);
-const { data: allCategories } = useGetExpenseCategories();
-const { data: allSubCategories } = useGetExpenseSubCategories();
+const { data: allCategories, refetch: fetchCat } = useGetExpenseCategories({ skip: true });
+const { data: allSubCategories, refetch: fetchSub } = useGetExpenseSubCategories({ skip: true });
 
 const form = ref({
   category: { label: "", value: "" },
@@ -56,6 +56,7 @@ const filteredSubCategories = computed(() =>
 );
 
 const editSub = ref();
+
 // populate info editing
 watch(
   () => props.modelValue,
@@ -77,6 +78,11 @@ watch(
           };
         }
       }
+
+      // fetch categories, subcategories, recipients
+      fetchRept();
+      fetchCat();
+      fetchSub();
     } else {
       form.value = {
         category: { label: "", value: "" },
@@ -141,14 +147,14 @@ const onSubmit = (e) => {
   }
 };
 
-const { data: recipients, refetch } = useGetExpenseRecipients();
+const { data: recipients, refetch: fetchRept } = useGetExpenseRecipients({ skip: true });
 const { mutate: createRecipient, loading: loadingRpt } = useCreateRecipient();
 const onAddRecipient = () => {
   if (!newRecipient.value) return toast.error("Recipient Name is required");
   createRecipient({ name: newRecipient.value }).then((res) => {
     form.value.recipient = { label: res.name, value: res.id };
     toast.success("Recipient Added");
-    refetch();
+    fetchRept();
     closeNewRpt();
   });
 };
