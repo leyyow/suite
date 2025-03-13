@@ -35,7 +35,7 @@ const summaryStats = computed(() => {
     return currentDate - createdDate <= newProductThreshold;
   }).length;
 
-  const lowStockCount = products.value.filter((product) => product.total_stock <= 5).length;
+  const lowStockCount = products.value.filter((product) => product.total_stock < 5).length;
 
   return [
     {
@@ -105,6 +105,7 @@ console.log("PP", products.value);
             v-for="(product, v) in filteredProducts"
             :key="v"
             :product="product"
+            @open:dropdown="selectedProduct = product"
             @view="() => router.push(`/dashboard/sales/inventory/${product.id}`)"
             @edit="() => router.push(`/dashboard/sales/inventory/edit?id=${product.id}`)"
             @duplicate="

@@ -4,7 +4,11 @@ import AppButton from "~/components/common/app-button.vue";
 import Modal from "~/components/common/modal.vue";
 import ProductCard from "./product-card.vue";
 
-defineProps({ modelValue: Boolean, loading: Boolean });
+defineProps({
+  modelValue: Boolean,
+  loading: Boolean,
+  product: { type: Object, default: () => ({}) },
+});
 const emit = defineEmits(["update:modelValue", "delete"]);
 </script>
 
@@ -23,7 +27,7 @@ const emit = defineEmits(["update:modelValue", "delete"]);
         This will completely remove all records of this product.
       </p>
 
-      <ProductCard :show-actions="false" />
+      <ProductCard :show-actions="false" :product="product" />
 
       <div class="grid grid-cols-2 gap-3 w-full mt-4">
         <AppButton
