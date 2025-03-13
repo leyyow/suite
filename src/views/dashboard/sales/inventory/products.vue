@@ -1,55 +1,86 @@
 <script setup>
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
+import { toast } from "vue3-toastify";
 import SearchBar from "~/components/common/search-bar.vue";
 import EmptyData from "~/components/dashboard/empty-data.vue";
 import SummaryCard from "~/components/dashboard/sales/summary-card.vue";
-import { formatNaira } from "~/utilities/formatNaira";
 import ProductCard from "~/components/dashboard/inventory/product-card.vue";
 import DeleteProductModal from "~/components/dashboard/inventory/delete-product-modal.vue";
-import { useRouter } from "vue-router";
+import { formatNaira } from "~/utilities/formatNaira";
+import { useSalesStore } from "~/stores/sales";
+import { useDeleteProduct } from "~/composables/api/sales/inventory";
 
-const empty = ref(false);
-
-const summaryStats = computed(() => [
-  {
-    label: "Total Inventory",
-    value: "500",
-    icon: "solar:shop-bold-duotone",
-    color: "text-pink-600",
-  },
-  {
-    label: "Inventory Value",
-    value: formatNaira(2400000),
-    icon: "solar:wallet-money-bold-duotone",
-    color: "text-cyan-500",
-  },
-  {
-    label: "New Product",
-    value: 30,
-    icon: "solar:shop-bold-duotone",
-    color: "text-purple-600",
-  },
-  {
-    label: "Low Stock",
-    value: 20,
-    icon: "solar:graph-down-bold-duotone",
-    color: "text-yellow-600",
-  },
-]);
+const router = useRouter();
+const salesStore = useSalesStore();
 
 const searchValue = ref("");
-
-// const selectedOrder = ref(null);
+const selectedProduct = ref(null);
 const showShare = ref(false);
 const showDelete = ref(false);
 
-const router = useRouter();
+const products = computed(() => salesStore.products);
+const filteredProducts = computed(() => {
+  if (!searchValue.value) return products.value;
+  const query = searchValue.value.toLowerCase();
+  return products.value.filter((product) => product.name.toLowerCase().includes(query));
+});
+
+const summaryStats = computed(() => {
+  const currentDate = new Date();
+  const newProductThreshold = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+
+  const newProductCount = products.value.filter((product) => {
+    const createdDate = new Date(product.created);
+    return currentDate - createdDate <= newProductThreshold;
+  }).length;
+
+  const lowStockCount = products.value.filter((product) => product.total_stock <= 5).length;
+
+  return [
+    {
+      label: "Total Inventory",
+      value: salesStore.totalProducts || 0,
+      icon: "solar:shop-bold-duotone",
+      color: "text-pink-600",
+    },
+    {
+      label: "Inventory Value",
+      value: formatNaira(products.value.reduce((acc, p) => acc + p.price * p.total_stock, 0)),
+      icon: "solar:wallet-money-bold-duotone",
+      color: "text-cyan-500",
+    },
+    {
+      label: "New Product",
+      value: newProductCount,
+      icon: "solar:shop-bold-duotone",
+      color: "text-purple-600",
+    },
+    {
+      label: "Low Stock",
+      value: lowStockCount,
+      icon: "solar:graph-down-bold-duotone",
+      color: "text-yellow-600",
+    },
+  ];
+});
+
+const { mutate: deleteProduct, loading: isDeleting } = useDeleteProduct();
+const handleDeleteProduct = () => {
+  deleteProduct(selectedProduct.value.id).then(() => {
+    toast.success("Product deleted successfully");
+    salesStore.removeProduct(selectedProduct.value.id);
+    showDelete.value = false;
+  });
+};
+
+console.log("PP", products.value);
 </script>
 
 <template>
   <div>
     <EmptyData
-      v-if="empty"
+      v-if="products.length === 0"
       variant="product"
       title="No product"
       subtitle="You have no product yet"
@@ -66,17 +97,19 @@ const router = useRouter();
       <SummaryCard :items="summaryStats" />
 
       <section class="mt-6">
-        <h3 class="text-base font-semibold mb-2">All Products ({{ 12 }})</h3>
+        <h3 class="text-base font-semibold mb-2">All Products ({{ salesStore.totalProducts }})</h3>
         <SearchBar v-model="searchValue" placeholder="Search by name..." />
 
         <div class="space-y-4 mt-4">
           <ProductCard
-            v-for="v in 12"
+            v-for="(product, v) in filteredProducts"
             :key="v"
-            @view="() => router.push(`/dashboard/sales/inventory/${v}`)"
-            @edit="() => router.push(`/dashboard/sales/inventory/edit?id=${v}`)"
+            :product="product"
+            @view="() => router.push(`/dashboard/sales/inventory/${product.id}`)"
+            @edit="() => router.push(`/dashboard/sales/inventory/edit?id=${product.id}`)"
             @duplicate="
-              () => router.push(`/dashboard/sales/inventory/create?action=duplicate&id=${v}`)
+              () =>
+                router.push(`/dashboard/sales/inventory/create?action=duplicate&id=${product.id}`)
             "
             @share="showShare = true"
             @delete="showDelete = true"
@@ -86,6 +119,11 @@ const router = useRouter();
     </div>
 
     <!--  -->
-    <DeleteProductModal v-model="showDelete" />
+    <DeleteProductModal
+      v-model="showDelete"
+      :product="selectedProduct"
+      :loading="isDeleting"
+      @delete="handleDeleteProduct"
+    />
   </div>
 </template>

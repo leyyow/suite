@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { Icon } from "@iconify/vue";
 import Modal from "~/components/common/modal.vue";
 import AppButton from "~/components/common/app-button.vue";
@@ -9,7 +9,7 @@ import AlertBox from "~/components/common/alert-box.vue";
 import StepperWizard from "~/components/common/stepper-wizard.vue";
 import Chip from "~/components/common/chip.vue";
 
-defineProps({ modelValue: Boolean, loading: Boolean });
+const props = defineProps({ modelValue: Boolean, loading: Boolean, product: Object });
 const emit = defineEmits(["update:modelValue", "submit"]);
 
 // Stepper state
@@ -20,6 +20,27 @@ const steps = ["Variants", "Pricing & Inventory"];
 const form = ref({
   variants: [{ name: "", values: [] }],
 });
+
+watch(
+  () => props.product,
+  (val) => {
+    if (val) {
+      const variants = [];
+      if (val.has_variant) {
+        const variantNames = val.variants.split(",").filter(Boolean);
+        variantNames.forEach((el, i) => {
+          variants.push({
+            name: el,
+            values: val[`options${i + 1}`]?.split(",").filter(Boolean) || [],
+          });
+        });
+      }
+
+      form.value.variants = val.has_variant ? variants : [{ name: "", values: [] }];
+    }
+  },
+  { immediate: true },
+);
 
 // Add & Remove Variants
 const addVariant = () => form.value.variants.push({ name: "", values: [] });
@@ -38,7 +59,7 @@ const variantCombinations = computed(() => {
   return getCombinations(valuesArray).map((combo) => ({
     name: combo.join(" / "),
     quantity: 0,
-    price: 0,
+    price: props.product?.price,
   }));
 });
 
